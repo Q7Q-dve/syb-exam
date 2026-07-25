@@ -169,11 +169,8 @@
   <!-- 顶部状态栏 -->
   <div class="status-bar">
     <span id="statusTime">00:00</span>
-    <div class="right">
-      <span>●●●●</span>
-      <span>📶</span>
-      <span>🔋</span>
-      <span class="battery">17</span>
+    <div class="right" id="statusRight">
+      <!-- 真实电量（需要设备API支持，否则隐藏） -->
     </div>
   </div>
 
@@ -204,17 +201,17 @@
 
       <!-- 每日打卡 -->
       <div class="card">
-        <div class="greeting">早上好，考公人 👋</div>
-        <div class="motto">"千磨万击还坚劲，任尔东西南北风" — 今日打卡第 <b id="dayCount">42</b> 天</div>
-        <div class="progress"><div class="progress-bar" style="width: 68%"></div></div>
-        <div class="progress-text"><span>今日学习 3.4 / 5 小时</span><span>68%</span></div>
+        <div class="greeting" id="greetingText">早上好，考公人 👋</div>
+        <div class="motto">"千磨万击还坚劲，任尔东西南北风" — 今日打卡第 <b id="dayCount">1</b> 天</div>
+        <div class="progress"><div class="progress-bar" id="progressBar" style="width: 0%"></div></div>
+        <div class="progress-text"><span id="progressLabel">今日学习 0 / 5 小时</span><span id="progressPercent">0%</span></div>
       </div>
 
       <!-- 每日任务 -->
-      <div class="daily-task" onclick="switchView('practice')">
+      <div class="daily-task" onclick="openCategory('言语理解')">
         <div class="left">
           <h3>📝 今日每日一题</h3>
-          <p>言语理解 · 已完成 1/10</p>
+          <p id="dailyTaskText">言语理解 · 已完成 0/10</p>
         </div>
         <div class="arrow">›</div>
       </div>
@@ -508,7 +505,7 @@
             <button class="primary" id="pomoStartBtn" onclick="togglePomo()">开始</button>
             <button onclick="resetPomo()">重置</button>
           </div>
-          <div style="margin-top:20px;font-size:13px;color:#888">今日已完成 🍅 × <b id="pomoCount">3</b></div>
+          <div style="margin-top:20px;font-size:13px;color:#888">今日已完成 🍅 × <b id="pomoCount">0</b></div>
         </div>
       </div>
     </div>
@@ -621,16 +618,117 @@
   <div class="sidebar-footer">
     <div>状态：<span class="status">复更中 · 距离考试 89 天</span></div>
     <div>📅 题库每两周更新 · 时政每周刷新</div>
-    <div style="margin-top:6px;color:#aaa;font-size:11px">最近更新：2026-07-23 v1.4（分类题库可点击）</div>
+    <div style="margin-top:6px;color:#aaa;font-size:11px">最近更新：2026-07-25 v2.0（真实学习数据）</div>
   </div>
 </div>
 
 <script>
-  // 注册 Service Worker（离线缓存）
+  // ===== 学习数据持久化（localStorage）=====
+  function loadData() {
+    try {
+      return JSON.parse(localStorage.getItem('syb_data') || '{}');
+    } catch(e) { return {}; }
+  }
+  function saveData(data) {
+    localStorage.setItem('syb_data', JSON.stringify(data));
+  }
+
+  // 获取今日数据
+  function getToday() {
+    const today = new Date().toDateString();
+    let data = loadData();
+    if (data.date !== today) {
+      // 新的一天，重置
+      data = {
+        date: today,
+        startDate: data.startDate || today,
+        questionsAnswered: 0,
+        questionsCorrect: 0,
+        pomoCount: 0,
+        studyMinutes: 0
+      };
+      saveData(data);
+    }
+    return data;
+  }
+
+  // 记录答题
+  function recordAnswer(isCorrect) {
+    const data = getToday();
+    data.questionsAnswered = (data.questionsAnswered || 0) + 1;
+    if (isCorrect) data.questionsCorrect = (data.questionsCorrect || 0) + 1;
+    saveData(data);
+    updateHomeProgress();
+  }
+
+  // 记录番茄完成
+  function recordPomo() {
+    const data = getToday();
+    data.pomoCount = (data.pomoCount || 0) + 1;
+    data.studyMinutes = (data.studyMinutes || 0) + 25;
+    saveData(data);
+    updateHomeProgress();
+  }
+
+  // 更新首页进度
+  function updateHomeProgress() {
+    const data = getToday();
+    // 计算打卡天数
+    const startDate = new Date(data.startDate || new Date().toDateString());
+    const days = Math.floor((new Date() - startDate) / 86400000) + 1;
+    document.getElementById('dayCount').textContent = days;
+
+    // 问候语随时间变化
+    const hour = new Date().getHours();
+    let greeting = '你好，考公人 👋';
+    if (hour < 6) greeting = '夜深了，早点休息 🌙';
+    else if (hour < 9) greeting = '早上好，考公人 🌅';
+    else if (hour < 12) greeting = '上午好，加油刷题 📖';
+    else if (hour < 14) greeting = '中午好，休息一下 😊';
+    else if (hour < 18) greeting = '下午好，继续努力 💪';
+    else if (hour < 22) greeting = '晚上好，冲刺复习 🌟';
+    else greeting = '夜深了，注意休息 🌙';
+    document.getElementById('greetingText').textContent = greeting;
+
+    // 学习进度：目标5小时=300分钟
+    const studyMinutes = data.studyMinutes || 0;
+    const targetMinutes = 300;
+    const percent = Math.min(100, Math.round(studyMinutes / targetMinutes * 100));
+    const hours = (studyMinutes / 60).toFixed(1);
+    document.getElementById('progressBar').style.width = percent + '%';
+    document.getElementById('progressLabel').textContent = `今日学习 ${hours} / 5 小时`;
+    document.getElementById('progressPercent').textContent = percent + '%';
+
+    // 每日任务进度
+    const answered = data.questionsAnswered || 0;
+    const target = 10;
+    document.getElementById('dailyTaskText').textContent = `今日已完成 ${Math.min(answered, target)}/${target} 题`;
+  }
+
+  // ===== 真实电量显示 =====
+  function initBattery() {
+    if ('getBattery' in navigator) {
+      navigator.getBattery().then(battery => {
+        function updateBattery() {
+          const level = Math.round(battery.level * 100);
+          const charging = battery.charging ? '⚡' : '';
+          const el = document.getElementById('statusRight');
+          if (el) {
+            el.innerHTML = `<span style="font-size:13px">${charging}🔋${level}%</span>`;
+          }
+        }
+        updateBattery();
+        battery.addEventListener('levelchange', updateBattery);
+        battery.addEventListener('chargingchange', updateBattery);
+      }).catch(() => {});
+    }
+  }
+
+  // ===== Service Worker =====
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('sw.js').then(() => {
-        console.log('SW注册成功，App可离线使用');
+        console.log('SW注册成功');
       }).catch(e => console.log('SW注册失败:', e));
     });
   }
@@ -640,10 +738,13 @@
     const now = new Date();
     const h = String(now.getHours()).padStart(2, '0');
     const m = String(now.getMinutes()).padStart(2, '0');
-    document.getElementById('statusTime').textContent = `${h}:${m}`;
+    const el = document.getElementById('statusTime');
+    if (el) el.textContent = `${h}:${m}`;
   }
   updateTime();
   setInterval(updateTime, 30000);
+  initBattery();
+  updateHomeProgress();
 
   // 侧边栏
   function toggleSidebar() {
@@ -1008,6 +1109,10 @@
     const options = parent.querySelectorAll('.q-option');
     const isCorrect = el.getAttribute('data-correct') === '1';
 
+    // 检查是否已经答过（避免重复计数）
+    const alreadyAnswered = el.parentElement.querySelector('.q-option.correct, .q-option.wrong');
+    const isFirstAttempt = !alreadyAnswered;
+
     options.forEach(o => {
       o.onclick = null;
       o.style.cursor = 'default';
@@ -1015,6 +1120,15 @@
         o.classList.add('correct');
       }
     });
+
+    if (!isCorrect) {
+      el.classList.add('wrong');
+    }
+
+    // 记录答题数据
+    if (isFirstAttempt) {
+      recordAnswer(isCorrect);
+    }
 
     if (!isCorrect) {
       el.classList.add('wrong');
@@ -1135,7 +1249,8 @@
   let pomoTotal = 25 * 60;
   let pomoRunning = false;
   let pomoTimer = null;
-  let pomoCompleted = 3;
+  let pomoCompleted = getToday().pomoCount || 0;
+  document.getElementById('pomoCount').textContent = pomoCompleted;
 
   function updatePomo() {
     const m = String(Math.floor(pomoSeconds / 60)).padStart(2, '0');
@@ -1150,7 +1265,7 @@
     if (pomoRunning) {
       clearInterval(pomoTimer);
       pomoRunning = false;
-      btn.textContent = '开始';
+      btn.textContent = '继续';
     } else {
       pomoRunning = true;
       btn.textContent = '暂停';
@@ -1161,12 +1276,28 @@
           pomoRunning = false;
           pomoCompleted++;
           document.getElementById('pomoCount').textContent = pomoCompleted;
+          recordPomo(); // 记录到学习数据
           pomoSeconds = pomoTotal;
           btn.textContent = '开始';
-          alert('🎉 番茄完成！休息5分钟吧~');
+          // 用页面内提示替代alert
+          showPomoComplete();
         }
         updatePomo();
       }, 1000);
+    }
+  }
+
+  function showPomoComplete() {
+    const label = document.querySelector('.pomo-label');
+    if (label) {
+      label.textContent = '🎉 完成！休息5分钟';
+      label.style.color = '#5a7a4a';
+      label.style.fontWeight = '600';
+      setTimeout(() => {
+        label.textContent = '点击开始专注';
+        label.style.color = '#888';
+        label.style.fontWeight = 'normal';
+      }, 5000);
     }
   }
 

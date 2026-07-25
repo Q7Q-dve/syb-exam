@@ -1,5 +1,5 @@
 // Service Worker - 离线缓存
-const CACHE_NAME = 'syb-app-v1.4'; // 7/23 专项练习分类题库可点击
+const CACHE_NAME = 'syb-app-v2.0'; // 7/25 真实学习数据+电量+番茄钟修复
 const ASSETS = [
   './',
   './index.html',
