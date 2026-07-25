@@ -262,8 +262,8 @@
           </div>
           <div class="q-explain" id="daily-q-explain">💡 <b>解析：</b>"因噎废食"指因偶然的小事而停止做该做的事，强调"停止/废弃"。A项画蛇添足是做事多此一举；C项杯弓蛇影是疑神疑鬼；D项庖丁解牛比喻经过反复实践，掌握了事物的客观规律。正确答案需结合语境判断，本题选<b>B矫枉过正</b>(纠正偏差过度)。</div>
           <div class="q-actions">
-            <button class="q-btn" onclick="toggleExplain(this)">查看解析</button>
-            <button class="q-btn primary" onclick="nextQuestion()">下一题</button>
+            <button class="q-btn" id="btn-daily-explain">查看解析</button>
+            <button class="q-btn primary" id="btn-daily-next">下一题</button>
           </div>
         </div>
       </div>
@@ -283,9 +283,9 @@
           </div>
           <div class="q-explain" id="gongji-q-explain">💡 <b>解析：</b>我国基本经济制度是<b>公有制为主体、多种所有制经济共同发展</b>，按劳分配为主体、多种分配方式并存，社会主义市场经济体制。注意区分"基本经济制度"与"分配制度"。</div>
           <div class="q-actions">
-            <button class="q-btn" onclick="toggleExplain(this)">查看解析</button>
-            <button class="q-btn" onclick="collectWrongQuestion('gongji')">⭐ 收藏错题</button>
-            <button class="q-btn primary" onclick="nextGongjiQuestion()">下一题</button>
+            <button class="q-btn" id="btn-gongji-explain">查看解析</button>
+            <button class="q-btn" id="btn-gongji-collect">⭐ 收藏错题</button>
+            <button class="q-btn primary" id="btn-gongji-next">下一题</button>
           </div>
         </div>
       </div>
@@ -1417,8 +1417,8 @@
     if (btn) btn.textContent = '查看解析';
   }
 
-  // 初始化
-  renderQuestion(dailyQuestions, dailyIndex, '', 'daily-q-stem', 'daily-q-options', 'daily-q-explain', 'daily-q-index');
+  // 初始化（try-catch防错）
+  try { renderQuestion(dailyQuestions, dailyIndex, '', 'daily-q-stem', 'daily-q-options', 'daily-q-explain', 'daily-q-index'); } catch(e) { console.log('初始化错误:', e); }
 
   // 答题
   function checkAnswer(el) {
@@ -1839,6 +1839,41 @@
 
   updatePomo();
   updateToolWrong();
+
+  // ===== 用addEventListener绑定按钮事件（比onclick更可靠）=====
+  try {
+    // 首页行测
+    var btnDailyExplain = document.getElementById('btn-daily-explain');
+    if (btnDailyExplain) btnDailyExplain.addEventListener('click', function() {
+      var ex = document.getElementById('daily-q-explain');
+      if (ex) { ex.classList.toggle('show'); this.textContent = ex.classList.contains('show') ? '隐藏解析' : '查看解析'; }
+    });
+    var btnDailyNext = document.getElementById('btn-daily-next');
+    if (btnDailyNext) btnDailyNext.addEventListener('click', function() {
+      dailyIndex++;
+      if (dailyIndex >= dailyQuestions.length) dailyIndex = 0;
+      try { renderQuestion(dailyQuestions, dailyIndex, '', 'daily-q-stem', 'daily-q-options', 'daily-q-explain', 'daily-q-index'); } catch(e) {}
+      showToast('已切换到下一题');
+    });
+
+    // 首页公基
+    var btnGjExplain = document.getElementById('btn-gongji-explain');
+    if (btnGjExplain) btnGjExplain.addEventListener('click', function() {
+      var ex = document.getElementById('gongji-q-explain');
+      if (ex) { ex.classList.toggle('show'); this.textContent = ex.classList.contains('show') ? '隐藏解析' : '查看解析'; }
+    });
+    var btnGjCollect = document.getElementById('btn-gongji-collect');
+    if (btnGjCollect) btnGjCollect.addEventListener('click', function() {
+      collectWrongQuestion('gongji');
+    });
+    var btnGjNext = document.getElementById('btn-gongji-next');
+    if (btnGjNext) btnGjNext.addEventListener('click', function() {
+      gongjiIndex++;
+      if (gongjiIndex >= gongjiQuestions.length) gongjiIndex = 0;
+      try { renderQuestion(gongjiQuestions, gongjiIndex, '', 'gongji-q-stem', 'gongji-q-options', 'gongji-q-explain', 'gongji-q-index'); } catch(e) {}
+      showToast('已切换到下一题');
+    });
+  } catch(e) { console.log('事件绑定错误:', e); }
 </script>
 </body>
 </html>
