@@ -70,6 +70,7 @@
   .q-actions { display: flex; gap: 8px; margin-top: 8px; }
   .q-btn { font-size: 12px; padding: 4px 12px; border-radius: 12px; border: 1px solid #ddd; background: #fff; cursor: pointer; }
   .q-btn.primary { background: #5a7a4a; color: #fff; border-color: #5a7a4a; }
+  .q-btn.primary:active { background: #4a6a3a; transform: scale(0.95); }
 
   /* 每日一题大卡 */
   .daily-task { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: linear-gradient(135deg, #6b8e4e, #94b576); color: #fff; border-radius: 16px; margin-bottom: 14px; cursor: pointer; }
@@ -689,7 +690,7 @@
   <div class="sidebar-footer">
     <div>状态：<span class="status">复更中 · 距离考试 89 天</span></div>
     <div>📅 题库每两周更新 · 时政每周刷新</div>
-    <div style="margin-top:6px;color:#aaa;font-size:11px">最近更新：2026-07-25 v3.1（新增省考真题）</div>
+    <div style="margin-top:6px;color:#aaa;font-size:11px">最近更新：2026-07-25 v3.2（修复下一题+缓存）</div>
   </div>
 </div>
 
@@ -807,8 +808,21 @@
   }
 
   // ===== Service Worker =====
-  // 暂时禁用SW，避免缓存导致旧版无法更新
-  console.log('PWA模式');
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').then((reg) => {
+        console.log('SW注册成功');
+        // 如果SW控制器发生变化（新版SW激活），自动刷新页面
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (!refreshing) {
+            refreshing = true;
+            window.location.reload();
+          }
+        });
+      }).catch(e => console.log('SW注册失败:', e));
+    });
+  }
 
   // 状态栏时间
   function updateTime() {
@@ -1473,12 +1487,14 @@
     dailyIndex++;
     if (dailyIndex >= dailyQuestions.length) dailyIndex = 0;
     renderQuestion(dailyQuestions, dailyIndex, '', 'daily-q-stem', 'daily-q-options', 'daily-q-explain', 'daily-q-index');
+    showToast('已切换到下一题');
   }
 
   function nextGongjiQuestion() {
     gongjiIndex++;
     if (gongjiIndex >= gongjiQuestions.length) gongjiIndex = 0;
     renderQuestion(gongjiQuestions, gongjiIndex, '', 'gongji-q-stem', 'gongji-q-options', 'gongji-q-explain', 'gongji-q-index');
+    showToast('已切换到下一题');
   }
 
   // 分类题库

@@ -1,5 +1,5 @@
 // Service Worker - 网络优先，确保总是最新版
-const CACHE_NAME = 'syb-app-v2.2'; // 7/25 修复缓存问题
+const CACHE_NAME = 'syb-app-v3.2'; // 7/25 修复SW缓存+强制更新
 const ASSETS = [
   './',
   './index.html',
