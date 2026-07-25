@@ -160,6 +160,27 @@
   .score-num { font-weight: 600; color: #5a7a4a; }
   .score-badge { font-size: 11px; padding: 2px 8px; border-radius: 4px; background: #e8efe2; color: #5a7a4a; }
 
+  /* 可展开内容 */
+  .expandable { cursor: pointer; transition: .2s; }
+  .expandable:active { opacity: .7; }
+  .expand-detail { display: none; margin-top: 8px; padding: 10px; background: #f9f6f0; border-radius: 8px; font-size: 12px; line-height: 1.7; color: #555; }
+  .expand-detail.show { display: block; }
+  .expand-arrow { float: right; transition: .3s; }
+  .expand-arrow.open { transform: rotate(90deg); }
+
+  /* 模考入口 */
+  .exam-card { cursor: pointer; transition: .2s; }
+  .exam-card:active { transform: scale(.98); }
+
+  /* 错题本列表 */
+  .wrong-item { background: #fff5f0; border-left: 3px solid #c25e44; padding: 12px; margin-bottom: 8px; border-radius: 0 8px 8px 0; }
+  .wrong-item h4 { font-size: 14px; margin-bottom: 4px; }
+  .wrong-item p { font-size: 12px; color: #888; line-height: 1.5; margin-bottom: 6px; }
+  .wrong-item .wrong-meta { display: flex; justify-content: space-between; align-items: center; }
+  .wrong-item .master-btn { font-size: 11px; padding: 3px 10px; border-radius: 10px; border: 1px solid #5a7a4a; background: #fff; color: #5a7a4a; cursor: pointer; }
+  .wrong-item .master-btn.mastered { background: #5a7a4a; color: #fff; }
+  .wrong-empty { text-align: center; padding: 30px; color: #ccc; font-size: 14px; }
+
   /* 滚动条 */
   ::-webkit-scrollbar { width: 0; }
 </style>
@@ -253,7 +274,7 @@
           <div class="q-explain" id="gongji-q-explain">💡 <b>解析：</b>我国基本经济制度是<b>公有制为主体、多种所有制经济共同发展</b>，按劳分配为主体、多种分配方式并存，社会主义市场经济体制。注意区分"基本经济制度"与"分配制度"。</div>
           <div class="q-actions">
             <button class="q-btn" onclick="toggleExplain(this)">查看解析</button>
-            <button class="q-btn" onclick="collectQuestion()">⭐ 收藏</button>
+            <button class="q-btn" onclick="collectWrongQuestion('gongji')">⭐ 收藏错题</button>
             <button class="q-btn primary" onclick="nextGongjiQuestion()">下一题</button>
           </div>
         </div>
@@ -262,89 +283,89 @@
       <!-- 时政 -->
       <div class="card">
         <div class="card-title">📰 广东时政省情 <span class="badge">7月23日更新</span></div>
-        <div class="news-item">
+        <div class="news-item expandable" onclick="toggleExpand(this)">
           <div class="news-date">07/22</div>
           <div class="news-content">
-            <div class="news-title">广东省老区建设促进会第十届第一次会员大会召开</div>
+            <div class="news-title">广东省老区建设促进会第十届第一次会员大会召开<span class="expand-arrow">›</span></div>
             <span class="news-tag">省情</span>
-            <div style="font-size:12px;color:#888;margin-top:4px">聚焦革命老区振兴发展，推动百千万工程走深走实……</div>
+            <div class="expand-detail">聚焦革命老区振兴发展，推动百千万工程走深走实。会议强调要加大对革命老区的支持力度，促进老区经济社会全面发展，传承红色基因，弘扬老区精神。</div>
           </div>
         </div>
-        <div class="news-item">
+        <div class="news-item expandable" onclick="toggleExpand(this)">
           <div class="news-date">07/21</div>
           <div class="news-content">
-            <div class="news-title">李强主持召开国务院常务会议，听取服务业扩能提质和"六张网"规划汇报</div>
+            <div class="news-title">李强主持召开国务院常务会议，听取服务业扩能提质和"六张网"规划汇报<span class="expand-arrow">›</span></div>
             <span class="news-tag">国务院</span>
             <span class="news-tag">重点</span>
-            <div style="font-size:12px;color:#888;margin-top:4px">部署进一步推动服务业高质量发展……</div>
+            <div class="expand-detail">部署进一步推动服务业高质量发展，审议通过"六张网"（交通网、能源网、信息网、物流网、市政网、水利网）规划建设情况汇报，强调要加快构建现代化基础设施体系。</div>
           </div>
         </div>
-        <div class="news-item">
+        <div class="news-item expandable" onclick="toggleExpand(this)">
           <div class="news-date">07/20</div>
           <div class="news-content">
-            <div class="news-title">大湾区首个全流程技术成果转化团体标准正式实施</div>
+            <div class="news-title">大湾区首个全流程技术成果转化团体标准正式实施<span class="expand-arrow">›</span></div>
             <span class="news-tag">大湾区</span>
             <span class="news-tag">科技</span>
-            <div style="font-size:12px;color:#888;margin-top:4px">粤港澳大湾区技术成果转化标准化建设迈出关键一步……</div>
+            <div class="expand-detail">粤港澳大湾区技术成果转化标准化建设迈出关键一步，该标准涵盖技术成果评估、交易、转化全流程，为大湾区科技创新协同发展提供规范支撑。</div>
           </div>
         </div>
-        <div class="news-item">
+        <div class="news-item expandable" onclick="toggleExpand(this)">
           <div class="news-date">07/18</div>
           <div class="news-content">
-            <div class="news-title">孟凡利主持召开省政府常务会议：确保完成全年经济社会发展目标任务</div>
+            <div class="news-title">孟凡利主持召开省政府常务会议：确保完成全年经济社会发展目标任务<span class="expand-arrow">›</span></div>
             <span class="news-tag">省政府</span>
-            <div style="font-size:12px;color:#888;margin-top:4px">扎实做好下半年各项工作，坚定信心、接续奋斗……</div>
+            <div class="expand-detail">扎实做好下半年各项工作，坚定信心、接续奋斗。会议强调要抓好稳增长、促改革、调结构、惠民生、防风险各项工作，确保完成全年经济社会发展目标任务。</div>
           </div>
         </div>
-        <div class="news-item">
+        <div class="news-item expandable" onclick="toggleExpand(this)">
           <div class="news-date">07/17</div>
           <div class="news-content">
-            <div class="news-title">广州发布20个创新应用场景，覆盖低空经济、AI、生物医药</div>
+            <div class="news-title">广州发布20个创新应用场景，覆盖低空经济、AI、生物医药<span class="expand-arrow">›</span></div>
             <span class="news-tag">广州</span>
             <span class="news-tag">热点</span>
-            <div style="font-size:12px;color:#888;margin-top:4px">广州市投资发展委员会联合广州金控集团重磅发布……</div>
+            <div class="expand-detail">广州市投资发展委员会联合广州金控集团重磅发布20个创新应用场景，全面覆盖低空经济、人工智能、生物医药、智慧城市等重点优势及新兴赛道，为投资者提供明确方向。</div>
           </div>
         </div>
-        <div class="news-item">
+        <div class="news-item expandable" onclick="toggleExpand(this)">
           <div class="news-date">07/16</div>
           <div class="news-content">
-            <div class="news-title">2026中国（广东）—东盟贸易促进与供应链合作机制对接交流会举行</div>
+            <div class="news-title">2026中国（广东）—东盟贸易促进与供应链合作机制对接交流会举行<span class="expand-arrow">›</span></div>
             <span class="news-tag">外交</span>
             <span class="news-tag">经济</span>
-            <div style="font-size:12px;color:#888;margin-top:4px">孟凡利出席并致辞，深化广东与东盟经贸合作……</div>
+            <div class="expand-detail">孟凡利出席并致辞，深化广东与东盟经贸合作。会议推动建立供应链合作机制，促进贸易投资便利化，助力广东打造高水平对外开放新高地。</div>
           </div>
         </div>
-        <div class="news-item">
+        <div class="news-item expandable" onclick="toggleExpand(this)">
           <div class="news-date">07/15</div>
           <div class="news-content">
-            <div class="news-title">"粤车南下"海关备案量突破1.1万宗，大湾区双向畅行</div>
+            <div class="news-title">"粤车南下"海关备案量突破1.1万宗，大湾区双向畅行<span class="expand-arrow">›</span></div>
             <span class="news-tag">大湾区</span>
-            <div style="font-size:12px;color:#888;margin-top:4px">粤车南下政策持续扩容，赋能湾区旅游与经济……</div>
+            <div class="expand-detail">粤车南下政策持续扩容，赋能湾区旅游与经济。海关备案量突破1.1万宗，标志着大湾区互联互通迈上新台阶，跨境出行更加便利。</div>
           </div>
         </div>
-        <div class="news-item">
+        <div class="news-item expandable" onclick="toggleExpand(this)">
           <div class="news-date">07/14</div>
           <div class="news-content">
-            <div class="news-title">黄坤明到惠州调研：高标准推进稔平半岛开发建设</div>
+            <div class="news-title">黄坤明到惠州调研：高标准推进稔平半岛开发建设<span class="expand-arrow">›</span></div>
             <span class="news-tag">省委</span>
-            <div style="font-size:12px;color:#888;margin-top:4px">加快探索海洋经济高质量发展新路，打造海上新广东……</div>
+            <div class="expand-detail">加快探索海洋经济高质量发展新路，打造海上新广东。强调要高标准高水平推进稔平半岛开发建设，发挥海洋资源优势，培育海洋经济新增长点。</div>
           </div>
         </div>
-        <div class="news-item">
+        <div class="news-item expandable" onclick="toggleExpand(this)">
           <div class="news-date">07/14</div>
           <div class="news-content">
-            <div class="news-title">孟凡利在韶关调研：让丹山碧水和强大算力发挥更大作用</div>
+            <div class="news-title">孟凡利在韶关调研：让丹山碧水和强大算力发挥更大作用<span class="expand-arrow">›</span></div>
             <span class="news-tag">韶关</span>
             <span class="news-tag">算力</span>
-            <div style="font-size:12px;color:#888;margin-top:4px">"港澳数、韶关算"成跨境算力新场景……</div>
+            <div class="expand-detail">"港澳数、韶关算"成跨境算力新场景。韶关作为国家算力枢纽节点，承接港澳数据处理需求，打造跨境算力合作新模式。</div>
           </div>
         </div>
-        <div class="news-item">
+        <div class="news-item expandable" onclick="toggleExpand(this)">
           <div class="news-date">07/10</div>
           <div class="news-content">
-            <div class="news-title">省委常委会部署科技创新、防汛防台风、安全生产、审计等工作</div>
+            <div class="news-title">省委常委会部署科技创新、防汛防台风、安全生产、审计等工作<span class="expand-arrow">›</span></div>
             <span class="news-tag">省委</span>
-            <div style="font-size:12px;color:#888;margin-top:4px">黄坤明主持会议，学习贯彻习近平总书记重要讲话重要指示精神……</div>
+            <div class="expand-detail">黄坤明主持会议，学习贯彻习近平总书记重要讲话重要指示精神。会议部署科技创新、防汛防台风、安全生产、审计等工作，强调统筹发展和安全。</div>
           </div>
         </div>
       </div>
@@ -352,42 +373,37 @@
       <!-- 考点速递 -->
       <div class="card">
         <div class="card-title">🎯 时政考点速递 <span class="badge">必背</span></div>
-        <div class="note-item">
-          <h4>📌 广东人工智能核心产业规模突破3000亿</h4>
-          <p>2025年广东AI核心产业规模突破<b>3000亿元</b>，增速超<b>40%</b>，总量占全国<b>1/4</b>。考点：新质生产力、人工智能赋能产业。</p>
-          <div class="note-time">2026-07</div>
+        <div class="note-item expandable" onclick="toggleExpand(this)">
+          <h4>📌 广东人工智能核心产业规模突破3000亿 <span class="expand-arrow">›</span></h4>
+          <div class="expand-detail show">2025年广东AI核心产业规模突破<b>3000亿元</b>，增速超<b>40%</b>，总量占全国<b>1/4</b>。<br>考点：新质生产力、人工智能赋能产业、科技创新。</div>
         </div>
-        <div class="note-item">
-          <h4>📌 "百千万工程"持续深化</h4>
-          <p>广东破解城乡二元结构的创新举措，核心是<b>县镇村一体化发展</b>。考点：产业振兴、人才下乡、县域经济、城乡融合、生态文明。</p>
-          <div class="note-time">2026-07</div>
+        <div class="note-item expandable" onclick="toggleExpand(this)">
+          <h4>📌 "百千万工程"持续深化 <span class="expand-arrow">›</span></h4>
+          <div class="expand-detail">广东破解城乡二元结构的创新举措，核心是<b>县镇村一体化发展</b>。<br>考点：产业振兴、人才下乡、县域经济、城乡融合、生态文明。</div>
         </div>
-        <div class="note-item">
-          <h4>📌 "粤车南下"突破1.1万宗</h4>
-          <p>大湾区互联互通标志性成果。考点：粤港澳大湾区一体化、跨境交通便利化、湾区经济融合。</p>
-          <div class="note-time">2026-07</div>
+        <div class="note-item expandable" onclick="toggleExpand(this)">
+          <h4>📌 "粤车南下"突破1.1万宗 <span class="expand-arrow">›</span></h4>
+          <div class="expand-detail">大湾区互联互通标志性成果。<br>考点：粤港澳大湾区一体化、跨境交通便利化、湾区经济融合。</div>
         </div>
-        <div class="note-item">
-          <h4>📌 "港澳数、韶关算"跨境算力新模式</h4>
-          <p>港澳数据+韶关算力，"来数加工"成为跨境算力新场景。考点：数字经济、东数西算、数据安全。</p>
-          <div class="note-time">2026-07</div>
+        <div class="note-item expandable" onclick="toggleExpand(this)">
+          <h4>📌 "港澳数、韶关算"跨境算力新模式 <span class="expand-arrow">›</span></h4>
+          <div class="expand-detail">港澳数据+韶关算力，"来数加工"成为跨境算力新场景。<br>考点：数字经济、东数西算、数据安全。</div>
         </div>
-        <div class="note-item">
-          <h4>📌 广东GDP连续37年全国第一</h4>
-          <p>广东GDP连续<b>37年</b>稳居全国首位，经济稳中有进、长期向好。考点：广东经济地位、高质量发展。</p>
-          <div class="note-time">2026-07</div>
+        <div class="note-item expandable" onclick="toggleExpand(this)">
+          <h4>📌 广东GDP连续37年全国第一 <span class="expand-arrow">›</span></h4>
+          <div class="expand-detail">广东GDP连续<b>37年</b>稳居全国首位，经济稳中有进、长期向好。<br>考点：广东经济地位、高质量发展、改革开放。</div>
         </div>
       </div>
 
       <!-- 模考 -->
       <div class="card">
         <div class="card-title">📝 每周模考 <span class="badge">真题演练</span></div>
-        <div class="exam-card">
+        <div class="exam-card" onclick="openExam('2026年广东省事业单位考情模考')">
           <h4>2026年广东省事业单位考情模考</h4>
           <div class="meta">行测+公基 · 120分钟 · 已报名 2.3万人</div>
           <span class="start-btn">立即开始 →</span>
         </div>
-        <div class="exam-card">
+        <div class="exam-card" onclick="openExam('2025年广东省直事业单位真题')">
           <h4>2025年广东省直事业单位真题</h4>
           <div class="meta">真题卷 · 含解析 · 平均分 67.5</div>
           <span class="start-btn">立即开始 →</span>
@@ -401,17 +417,17 @@
           <div class="memo-card" onclick="switchView('pomodoro')">
             <div class="memo-emoji">🍅</div>
             <div class="memo-title">番茄钟</div>
-            <div class="memo-desc">专注25分钟</div>
+            <div class="memo-desc" id="toolPomo">今日0个</div>
           </div>
           <div class="memo-card" onclick="switchView('wrong')">
             <div class="memo-emoji">📌</div>
             <div class="memo-title">错题本</div>
-            <div class="memo-desc">已收录 86 题</div>
+            <div class="memo-desc" id="toolWrong">0题</div>
           </div>
           <div class="memo-card" onclick="switchView('notes')">
             <div class="memo-emoji">📓</div>
             <div class="memo-title">学习笔记</div>
-            <div class="memo-desc">记录 24 篇</div>
+            <div class="memo-desc">5篇</div>
           </div>
           <div class="memo-card" onclick="switchView('plan')">
             <div class="memo-emoji">📅</div>
@@ -440,18 +456,23 @@
 
       <div class="card">
         <div class="card-title">✍️ 申论写作 <span class="badge">主观题</span></div>
-        <div class="question-item">
+        <div class="question-item expandable" onclick="toggleExpand(this)">
           <span class="q-type sl">归纳概括</span>
+          <span class="expand-arrow">›</span>
           <div class="q-stem"><b>题目：</b>根据给定资料1，概括广东在推动"百千万工程"中的主要举措。(15分)</div>
-          <div class="q-explain show">📝 <b>答题要点：</b>1. 产业振兴，发展特色农业；2. 人才下乡，科技特派员制度；3. 县域经济，承接产业转移；4. 城乡融合，基础设施一体化；5. 生态文明，绿美广东建设。</div>
+          <div class="expand-detail">📝 <b>答题要点：</b><br>1. 产业振兴，发展特色农业<br>2. 人才下乡，科技特派员制度<br>3. 县域经济，承接产业转移<br>4. 城乡融合，基础设施一体化<br>5. 生态文明，绿美广东建设</div>
         </div>
-        <div class="question-item">
+        <div class="question-item expandable" onclick="toggleExpand(this)">
           <span class="q-type sl">提出对策</span>
+          <span class="expand-arrow">›</span>
           <div class="q-stem"><b>题目：</b>针对广东某市老旧小区改造中遇到的难题，提出对策建议。(20分)</div>
+          <div class="expand-detail">📝 <b>答题要点：</b><br>1. 加强宣传引导，争取居民理解支持<br>2. 建立多方协调机制，政府+社区+居民共治<br>3. 多渠道筹措资金，财政补贴+社会资本<br>4. 分期分批实施，减少施工影响<br>5. 建立长效管护机制，确保改造成效</div>
         </div>
-        <div class="question-item">
+        <div class="question-item expandable" onclick="toggleExpand(this)">
           <span class="q-type sl">大作文</span>
+          <span class="expand-arrow">›</span>
           <div class="q-stem"><b>题目：</b>"功以才成，业由才广" — 结合广东实际，围绕人才与高质量发展写一篇文章。(40分)</div>
+          <div class="expand-detail">📝 <b>写作思路：</b><br>1. 开篇：引出"功以才成，业由才广"，点明人才是第一资源<br>2. 分析：广东人才工作的成就（大湾区人才集聚、科技创新人才）<br>3. 问题：人才分布不均、高层次人才不足<br>4. 对策：①优化人才政策 ②搭建创新平台 ③营造良好生态<br>5. 结尾：呼吁汇聚天下英才，共筑广东高质量发展</div>
         </div>
       </div>
     </div>
@@ -515,17 +536,12 @@
       <div class="card">
         <div class="card-title">📌 我的错题本</div>
         <div class="stat-grid">
-          <div class="stat-item"><div class="stat-num">86</div><div class="stat-label">总错题</div></div>
-          <div class="stat-item"><div class="stat-num">23</div><div class="stat-label">已掌握</div></div>
-          <div class="stat-item"><div class="stat-num">63</div><div class="stat-label">待复习</div></div>
+          <div class="stat-item"><div class="stat-num" id="wrongTotal">0</div><div class="stat-label">总错题</div></div>
+          <div class="stat-item"><div class="stat-num" id="wrongMastered">0</div><div class="stat-label">已掌握</div></div>
+          <div class="stat-item"><div class="stat-num" id="wrongPending">0</div><div class="stat-label">待复习</div></div>
         </div>
-        <div class="memo-grid" style="margin-top:14px">
-          <div class="memo-card"><div class="memo-emoji">📖</div><div class="memo-title">言语理解</div><div class="memo-desc">错 18 题</div></div>
-          <div class="memo-card"><div class="memo-emoji">🔢</div><div class="memo-title">数量关系</div><div class="memo-desc">错 26 题</div></div>
-          <div class="memo-card"><div class="memo-emoji">🧩</div><div class="memo-title">判断推理</div><div class="memo-desc">错 15 题</div></div>
-          <div class="memo-card"><div class="memo-emoji">📈</div><div class="memo-title">资料分析</div><div class="memo-desc">错 9 题</div></div>
-          <div class="memo-card"><div class="memo-emoji">🏛️</div><div class="memo-title">政治理论</div><div class="memo-desc">错 12 题</div></div>
-          <div class="memo-card"><div class="memo-emoji">⚖️</div><div class="memo-title">法律基础</div><div class="memo-desc">错 6 题</div></div>
+        <div id="wrongList" style="margin-top:14px">
+          <div class="wrong-empty">暂无错题，去刷题吧！💪</div>
         </div>
       </div>
     </div>
@@ -618,7 +634,7 @@
   <div class="sidebar-footer">
     <div>状态：<span class="status">复更中 · 距离考试 89 天</span></div>
     <div>📅 题库每两周更新 · 时政每周刷新</div>
-    <div style="margin-top:6px;color:#aaa;font-size:11px">最近更新：2026-07-25 v2.0（真实学习数据）</div>
+    <div style="margin-top:6px;color:#aaa;font-size:11px">最近更新：2026-07-25 v2.1（全部修复）</div>
   </div>
 </div>
 
@@ -759,6 +775,10 @@
     if (target) {
       target.classList.add('active');
       document.querySelector('.content').scrollTop = 0;
+      // 进入错题本时刷新列表
+      if (name === 'wrong') renderWrongList();
+      // 回首页时刷新进度
+      if (name === 'home') updateHomeProgress();
     }
     // 更新底部导航
     const navMap = { home: 0, practice: 1, wrong: 2, pomodoro: 3, notes: 4, category: 1 };
@@ -1128,6 +1148,25 @@
     // 记录答题数据
     if (isFirstAttempt) {
       recordAnswer(isCorrect);
+
+      // 答错时自动加入错题本
+      if (!isCorrect) {
+        const questionItem = parent.parentElement;
+        const stemEl = questionItem.querySelector('.q-stem');
+        const explainEl = questionItem.querySelector('.q-explain');
+        const stem = stemEl ? stemEl.textContent : '';
+
+        // 找到正确答案
+        let correctAnswer = '';
+        options.forEach(o => {
+          if (o.getAttribute('data-correct') === '1') {
+            correctAnswer = o.textContent;
+          }
+        });
+
+        const explain = explainEl ? explainEl.textContent.replace('💡 解析：', '') : '';
+        addWrongQuestion(currentCategory || '每日一练', stem, correctAnswer, explain);
+      }
     }
 
     if (!isCorrect) {
@@ -1240,8 +1279,146 @@
     renderCategoryQuestion();
   }
 
-  function collectQuestion() {
-    alert('⭐ 已收藏到错题本！');
+  // 错题本
+  function getWrongQuestions() {
+    try {
+      return JSON.parse(localStorage.getItem('syb_wrong') || '[]');
+    } catch(e) { return []; }
+  }
+
+  function saveWrongQuestions(arr) {
+    localStorage.setItem('syb_wrong', JSON.stringify(arr));
+  }
+
+  // 收录错题（答题错误时自动调用）
+  function addWrongQuestion(category, stem, correctAnswer, explain) {
+    let wrong = getWrongQuestions();
+    // 避免重复
+    if (wrong.some(w => w.stem === stem)) return;
+    wrong.unshift({
+      category: category,
+      stem: stem,
+      correctAnswer: correctAnswer,
+      explain: explain,
+      date: new Date().toLocaleDateString(),
+      mastered: false
+    });
+    saveWrongQuestions(wrong);
+    updateToolWrong();
+  }
+
+  // 手动收藏错题
+  function collectWrongQuestion(source) {
+    let q, stem, answer, explain;
+    if (source === 'gongji') {
+      q = gongjiQuestions[gongjiIndex];
+      stem = q.stem;
+      answer = ['A','B','C','D'][q.correct] + '. ' + q.options[q.correct];
+      explain = q.explain;
+    } else if (source === 'category') {
+      q = categoryBank[currentCategory][categoryIndex];
+      stem = q.stem;
+      answer = ['A','B','C','D'][q.correct] + '. ' + q.options[q.correct];
+      explain = q.explain;
+    } else if (source === 'daily') {
+      q = dailyQuestions[dailyIndex];
+      stem = q.stem;
+      answer = ['A','B','C','D'][q.correct] + '. ' + q.options[q.correct];
+      explain = q.explain;
+    }
+    if (stem) {
+      addWrongQuestion(currentCategory || q.type, stem, answer, explain);
+      showToast('⭐ 已收藏到错题本');
+    }
+  }
+
+  // 标记已掌握
+  function markMastered(index) {
+    let wrong = getWrongQuestions();
+    if (wrong[index]) {
+      wrong[index].mastered = !wrong[index].mastered;
+      saveWrongQuestions(wrong);
+      renderWrongList();
+    }
+  }
+
+  // 删除错题
+  function deleteWrong(index) {
+    let wrong = getWrongQuestions();
+    wrong.splice(index, 1);
+    saveWrongQuestions(wrong);
+    renderWrongList();
+  }
+
+  // 渲染错题列表
+  function renderWrongList() {
+    const wrong = getWrongQuestions();
+    const total = wrong.length;
+    const mastered = wrong.filter(w => w.mastered).length;
+    const pending = total - mastered;
+
+    document.getElementById('wrongTotal').textContent = total;
+    document.getElementById('wrongMastered').textContent = mastered;
+    document.getElementById('wrongPending').textContent = pending;
+
+    const list = document.getElementById('wrongList');
+    if (total === 0) {
+      list.innerHTML = '<div class="wrong-empty">暂无错题，去刷题吧！💪</div>';
+      return;
+    }
+
+    list.innerHTML = wrong.map((w, i) => `
+      <div class="wrong-item">
+        <h4>${w.mastered ? '✅' : '❌'} ${w.category || '未知'}</h4>
+        <p>${w.stem}</p>
+        <p style="color:#5a7a4a">正确答案：${w.correctAnswer}</p>
+        <p style="color:#888;font-size:11px">${w.explain}</p>
+        <div class="wrong-meta">
+          <span style="font-size:11px;color:#aaa">${w.date}</span>
+          <div>
+            <button class="master-btn ${w.mastered ? 'mastered' : ''}" onclick="markMastered(${i})">${w.mastered ? '已掌握' : '标记掌握'}</button>
+            <button class="master-btn" onclick="deleteWrong(${i})" style="border-color:#c25e44;color:#c25e44;margin-left:4px">删除</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // 更新首页工具卡片错题数
+  function updateToolWrong() {
+    const wrong = getWrongQuestions();
+    const el = document.getElementById('toolWrong');
+    if (el) el.textContent = wrong.length + '题';
+  }
+
+  // 展开/收起
+  function toggleExpand(el) {
+    const detail = el.querySelector('.expand-detail');
+    const arrow = el.querySelector('.expand-arrow');
+    if (detail) detail.classList.toggle('show');
+    if (arrow) arrow.classList.toggle('open');
+  }
+
+  // 轻提示
+  function showToast(msg) {
+    let toast = document.getElementById('toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'toast';
+      toast.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.8);color:#fff;padding:10px 24px;border-radius:20px;font-size:14px;z-index:9999;transition:.3s;opacity:0';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.style.opacity = '1';
+    setTimeout(() => { toast.style.opacity = '0'; }, 2000);
+  }
+
+  // 模考功能
+  function openExam(name) {
+    showToast('🎯 ' + name + ' 加载中...');
+    setTimeout(() => {
+      switchView('practice');
+    }, 1000);
   }
 
   // 番茄钟
@@ -1310,6 +1487,7 @@
   }
 
   updatePomo();
+  updateToolWrong();
 </script>
 </body>
 </html>
