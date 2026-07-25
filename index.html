@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>广东事业编备考工作台</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#5a7a4a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="事业编备考">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+
+<!-- iPhone 刘海屏安全区域 -->
+<style>
+  :root { --safe-top: env(safe-area-inset-top); --safe-bottom: env(safe-area-inset-bottom); }
+</style>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f3eee5; color: #2b2b2b; overflow: hidden; }
+
+  /* 主容器 */
+  .app { position: relative; height: 100vh; width: 100vw; overflow: hidden; }
+
+  /* 顶部状态栏模拟 - 适配刘海屏 */
+  .status-bar { height: calc(44px + env(safe-area-inset-top)); padding-top: env(safe-area-inset-top); display: flex; justify-content: space-between; align-items: center; padding-left: 20px; padding-right: 20px; font-size: 15px; font-weight: 600; }
+  .status-bar .right { display: flex; gap: 6px; align-items: center; }
+  .battery { border: 1.5px solid #2b2b2b; border-radius: 4px; padding: 1px 3px; font-size: 11px; }
+
+  /* 顶部条 */
+  .top-bar { display: flex; align-items: center; justify-content: space-between; padding: 10px 18px 14px; }
+  .top-bar .date { font-size: 16px; font-weight: 500; color: #1f1f1f; }
+  .top-bar .icons { display: flex; gap: 12px; }
+  .icon-btn { width: 30px; height: 30px; border-radius: 50%; background: rgba(0,0,0,.04); display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; }
+
+  /* 内容区 */
+  .content { padding: 0 16px 100px; overflow-y: auto; height: calc(100vh - 44px - 60px - 80px); }
+
+  /* 卡片 */
+  .card { background: #fff; border-radius: 18px; padding: 18px 16px; margin-bottom: 14px; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+  .card-title { display: flex; align-items: center; gap: 8px; font-size: 17px; font-weight: 600; margin-bottom: 10px; }
+  .card-title .badge { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: #e8efe2; color: #5a7a4a; font-weight: 500; }
+
+  /* 今日打卡 */
+  .greeting { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .motto { color: #888; font-size: 13px; margin-bottom: 14px; }
+  .progress { background: #f0ebe0; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
+  .progress-bar { background: linear-gradient(90deg, #6b8e4e, #94b576); height: 100%; border-radius: 4px; transition: width .5s; }
+  .progress-text { display: flex; justify-content: space-between; font-size: 12px; color: #888; }
+
+  /* 题目卡片 */
+  .question-item { padding: 12px 0; border-bottom: 1px dashed #eee; }
+  .question-item:last-child { border-bottom: none; }
+  .q-type { display: inline-block; font-size: 11px; padding: 1px 8px; border-radius: 4px; margin-right: 6px; }
+  .q-type.lc { background: #e8f0ff; color: #4a6fa5; }
+  .q-type.gj { background: #ffeae5; color: #c25e44; }
+  .q-type.sl { background: #f0e8ff; color: #7e5fb5; }
+  .q-type.sz { background: #fff5e0; color: #c08a35; }
+  .q-stem { font-size: 14px; line-height: 1.6; margin: 6px 0; }
+  .q-options { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; }
+  .q-option { font-size: 13px; padding: 6px 10px; background: #f7f3eb; border-radius: 8px; cursor: pointer; transition: .2s; }
+  .q-option:hover, .q-option.selected { background: #5a7a4a; color: #fff; }
+  .q-option.correct { background: #4a8a4a; color: #fff; }
+  .q-option.wrong { background: #c25e44; color: #fff; }
+  .q-explain { font-size: 12px; color: #5a7a4a; margin-top: 8px; padding: 8px 10px; background: #f4f8f0; border-radius: 8px; line-height: 1.6; display: none; }
+  .q-explain.show { display: block; }
+  .q-actions { display: flex; gap: 8px; margin-top: 8px; }
+  .q-btn { font-size: 12px; padding: 4px 12px; border-radius: 12px; border: 1px solid #ddd; background: #fff; cursor: pointer; }
+  .q-btn.primary { background: #5a7a4a; color: #fff; border-color: #5a7a4a; }
+
+  /* 每日一题大卡 */
+  .daily-task { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: linear-gradient(135deg, #6b8e4e, #94b576); color: #fff; border-radius: 16px; margin-bottom: 14px; cursor: pointer; }
+  .daily-task .left h3 { font-size: 16px; margin-bottom: 4px; }
+  .daily-task .left p { font-size: 12px; opacity: .85; }
+  .daily-task .arrow { font-size: 22px; }
+
+  /* 时政 */
+  .news-item { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px dashed #eee; align-items: flex-start; }
+  .news-item:last-child { border-bottom: none; }
+  .news-date { flex-shrink: 0; background: #f4f0e6; color: #5a7a4a; font-size: 11px; padding: 4px 8px; border-radius: 6px; font-weight: 600; min-width: 42px; text-align: center; }
+  .news-content { flex: 1; }
+  .news-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; line-height: 1.4; }
+  .news-tag { font-size: 11px; color: #c25e44; background: #fff0eb; padding: 1px 6px; border-radius: 4px; display: inline-block; margin-right: 4px; }
+
+  /* 速记卡片 */
+  .memo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
+  .memo-card { background: #f7f3eb; border-radius: 12px; padding: 12px; cursor: pointer; transition: .2s; }
+  .memo-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+  .memo-card .memo-emoji { font-size: 22px; margin-bottom: 6px; }
+  .memo-card .memo-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .memo-card .memo-desc { font-size: 11px; color: #888; }
+
+  /* 模考 */
+  .exam-card { background: linear-gradient(135deg, #f9f3e3, #f0e6c8); border-radius: 14px; padding: 14px; margin-bottom: 10px; cursor: pointer; }
+  .exam-card h4 { font-size: 15px; margin-bottom: 4px; }
+  .exam-card .meta { font-size: 12px; color: #888; margin-bottom: 8px; }
+  .exam-card .start-btn { display: inline-block; font-size: 12px; padding: 4px 14px; background: #5a7a4a; color: #fff; border-radius: 12px; }
+
+  /* 错题本 */
+  .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+  .stat-item { text-align: center; background: #f7f3eb; padding: 10px 4px; border-radius: 10px; }
+  .stat-num { font-size: 20px; font-weight: 700; color: #5a7a4a; }
+  .stat-label { font-size: 11px; color: #888; margin-top: 2px; }
+
+  /* 底部导航 - 适配 home indicator */
+  .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: calc(70px + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); background: #fff; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #eee; }
+  .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 11px; color: #999; cursor: pointer; }
+  .nav-item.active { color: #5a7a4a; }
+  .nav-item .icon { font-size: 22px; }
+
+  /* 侧边栏 */
+  .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); opacity: 0; pointer-events: none; transition: .3s; z-index: 99; }
+  .sidebar-overlay.show { opacity: 1; pointer-events: auto; }
+  .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 78%; max-width: 320px; background: #fff; transform: translateX(-100%); transition: .3s; z-index: 100; display: flex; flex-direction: column; box-shadow: 2px 0 20px rgba(0,0,0,.1); }
+  .sidebar.show { transform: translateX(0); }
+  .sidebar-header { padding: 40px 24px 20px; border-bottom: 1px solid #f0ebe0; }
+  .sidebar-name { font-size: 26px; font-weight: 700; color: #5a7a4a; margin-bottom: 4px; }
+  .sidebar-sub { font-size: 13px; color: #999; }
+  .sidebar-menu { flex: 1; overflow-y: auto; padding: 12px 0; }
+  .menu-item { display: flex; align-items: center; padding: 14px 24px; cursor: pointer; font-size: 15px; color: #333; transition: .2s; }
+  .menu-item:hover { background: #f7f3eb; }
+  .menu-item.active { background: #5a7a4a; color: #fff; margin: 8px 16px; border-radius: 12px; padding: 14px 16px; font-weight: 500; }
+  .menu-item .emoji { font-size: 18px; margin-right: 14px; }
+  .sidebar-footer { padding: 20px 24px 30px; border-top: 1px solid #f0ebe0; font-size: 12px; color: #999; }
+  .sidebar-footer .status { color: #5a7a4a; font-weight: 500; }
+
+  /* 题目页面切换 */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* 翻页 */
+  .pager { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
+  .pager button { font-size: 13px; padding: 6px 16px; border: 1px solid #ddd; background: #fff; border-radius: 14px; cursor: pointer; }
+  .pager button.primary { background: #5a7a4a; color: #fff; border-color: #5a7a4a; }
+  .pager .indicator { font-size: 12px; color: #888; }
+
+  /* 番茄钟 */
+  .pomodoro { text-align: center; padding: 20px 0; }
+  .pomo-time { font-size: 48px; font-weight: 200; color: #5a7a4a; margin: 16px 0; }
+  .pomo-circle { width: 200px; height: 200px; margin: 0 auto; position: relative; }
+  .pomo-circle svg { transform: rotate(-90deg); }
+  .pomo-circle .center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .pomo-label { font-size: 13px; color: #888; }
+  .pomo-btns { display: flex; gap: 12px; justify-content: center; margin-top: 16px; }
+  .pomo-btns button { padding: 8px 24px; border-radius: 20px; border: 1px solid #5a7a4a; background: #fff; color: #5a7a4a; font-size: 14px; cursor: pointer; }
+  .pomo-btns button.primary { background: #5a7a4a; color: #fff; }
+
+  /* 笔记 */
+  .note-item { background: #fdf9f0; border-left: 3px solid #c08a35; padding: 10px 12px; margin-bottom: 8px; border-radius: 0 8px 8px 0; cursor: pointer; }
+  .note-item h4 { font-size: 14px; margin-bottom: 4px; }
+  .note-item p { font-size: 12px; color: #777; line-height: 1.5; }
+  .note-item .note-time { font-size: 11px; color: #aaa; margin-top: 4px; }
+
+  /* 模考成绩 */
+  .score-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed #eee; font-size: 14px; }
+  .score-row:last-child { border-bottom: none; }
+  .score-num { font-weight: 600; color: #5a7a4a; }
+  .score-badge { font-size: 11px; padding: 2px 8px; border-radius: 4px; background: #e8efe2; color: #5a7a4a; }
+
+  /* 滚动条 */
+  ::-webkit-scrollbar { width: 0; }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- 顶部状态栏 -->
+  <div class="status-bar">
+    <span id="statusTime">00:00</span>
+    <div class="right">
+      <span>●●●●</span>
+      <span>📶</span>
+      <span>🔋</span>
+      <span class="battery">17</span>
+    </div>
+  </div>
+
+  <!-- 顶部条 -->
+  <div class="top-bar">
+    <div class="icon-btn" onclick="toggleSidebar()">☰</div>
+    <div class="date" id="dateText">2026年7月23日 星期四</div>
+    <div class="icons">
+      <div class="icon-btn" onclick="switchView('home')">🏠</div>
+    </div>
+  </div>
+
+  <!-- 内容区 -->
+  <div class="content">
+
+    <!-- 主页 -->
+    <div class="view active" id="view-home">
+      <!-- 更新公告 -->
+      <div class="card" style="background:linear-gradient(135deg,#e8efe2,#f4f8f0);border:1px solid #c8d8b8;padding:12px 14px;">
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#5a7a4a;">
+          <span style="font-size:16px">🔔</span>
+          <div>
+            <b>更新机制</b>：题库每两周扩充 · 时政省情每周刷新
+            <div style="font-size:11px;color:#888;margin-top:2px">需要更新时跟我说"更新题库"即可获取最新内容</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 每日打卡 -->
+      <div class="card">
+        <div class="greeting">早上好，考公人 👋</div>
+        <div class="motto">"千磨万击还坚劲，任尔东西南北风" — 今日打卡第 <b id="dayCount">42</b> 天</div>
+        <div class="progress"><div class="progress-bar" style="width: 68%"></div></div>
+        <div class="progress-text"><span>今日学习 3.4 / 5 小时</span><span>68%</span></div>
+      </div>
+
+      <!-- 每日任务 -->
+      <div class="daily-task" onclick="switchView('practice')">
+        <div class="left">
+          <h3>📝 今日每日一题</h3>
+          <p>言语理解 · 已完成 1/10</p>
+        </div>
+        <div class="arrow">›</div>
+      </div>
+
+      <!-- 行测每日一练 -->
+      <div class="card">
+        <div class="card-title">📊 行测每日一练 <span class="badge">职测</span></div>
+        <div class="question-item" id="daily-question">
+          <span class="q-type lc">言语</span>
+          <span style="font-size:11px;color:#999" id="daily-q-index">第1题 / 5题</span>
+          <div class="q-stem" id="daily-q-stem">下列词语中，意思最接近"因噎废食"的一项是：</div>
+          <div class="q-options" id="daily-q-options">
+            <div class="q-option" data-correct="0">A. 画蛇添足</div>
+            <div class="q-option" data-correct="1">B. 矫枉过正</div>
+            <div class="q-option" data-correct="0">C. 杯弓蛇影</div>
+            <div class="q-option" data-correct="0">D. 庖丁解牛</div>
+          </div>
+          <div class="q-explain" id="daily-q-explain">💡 <b>解析：</b>"因噎废食"指因偶然的小事而停止做该做的事，强调"停止/废弃"。A项画蛇添足是做事多此一举；C项杯弓蛇影是疑神疑鬼；D项庖丁解牛比喻经过反复实践，掌握了事物的客观规律。正确答案需结合语境判断，本题选<b>B矫枉过正</b>(纠正偏差过度)。</div>
+          <div class="q-actions">
+            <button class="q-btn" onclick="toggleExplain(this)">查看解析</button>
+            <button class="q-btn primary" onclick="nextQuestion()">下一题</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 公基 -->
+      <div class="card">
+        <div class="card-title">🏛️ 公基速记 <span class="badge">综合知识</span></div>
+        <div class="question-item" id="gongji-question">
+          <span class="q-type gj">政治</span>
+          <span style="font-size:11px;color:#999" id="gongji-q-index">高频考点</span>
+          <div class="q-stem" id="gongji-q-stem">我国社会主义初级阶段的基本经济制度是：</div>
+          <div class="q-options" id="gongji-q-options">
+            <div class="q-option" data-correct="0">A. 计划经济</div>
+            <div class="q-option" data-correct="0">B. 市场经济</div>
+            <div class="q-option" data-correct="1">C. 公有制为主体，多种所有制经济共同发展</div>
+            <div class="q-option" data-correct="0">D. 私有制为主体</div>
+          </div>
+          <div class="q-explain" id="gongji-q-explain">💡 <b>解析：</b>我国基本经济制度是<b>公有制为主体、多种所有制经济共同发展</b>，按劳分配为主体、多种分配方式并存，社会主义市场经济体制。注意区分"基本经济制度"与"分配制度"。</div>
+          <div class="q-actions">
+            <button class="q-btn" onclick="toggleExplain(this)">查看解析</button>
+            <button class="q-btn" onclick="collectQuestion()">⭐ 收藏</button>
+            <button class="q-btn primary" onclick="nextGongjiQuestion()">下一题</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 时政 -->
+      <div class="card">
+        <div class="card-title">📰 广东时政省情 <span class="badge">7月23日更新</span></div>
+        <div class="news-item">
+          <div class="news-date">07/22</div>
+          <div class="news-content">
+            <div class="news-title">广东省老区建设促进会第十届第一次会员大会召开</div>
+            <span class="news-tag">省情</span>
+            <div style="font-size:12px;color:#888;margin-top:4px">聚焦革命老区振兴发展，推动百千万工程走深走实……</div>
+          </div>
+        </div>
+        <div class="news-item">
+          <div class="news-date">07/21</div>
+          <div class="news-content">
+            <div class="news-title">李强主持召开国务院常务会议，听取服务业扩能提质和"六张网"规划汇报</div>
+            <span class="news-tag">国务院</span>
+            <span class="news-tag">重点</span>
+            <div style="font-size:12px;color:#888;margin-top:4px">部署进一步推动服务业高质量发展……</div>
+          </div>
+        </div>
+        <div class="news-item">
+          <div class="news-date">07/20</div>
+          <div class="news-content">
+            <div class="news-title">大湾区首个全流程技术成果转化团体标准正式实施</div>
+            <span class="news-tag">大湾区</span>
+            <span class="news-tag">科技</span>
+            <div style="font-size:12px;color:#888;margin-top:4px">粤港澳大湾区技术成果转化标准化建设迈出关键一步……</div>
+          </div>
+        </div>
+        <div class="news-item">
+          <div class="news-date">07/18</div>
+          <div class="news-content">
+            <div class="news-title">孟凡利主持召开省政府常务会议：确保完成全年经济社会发展目标任务</div>
+            <span class="news-tag">省政府</span>
+            <div style="font-size:12px;color:#888;margin-top:4px">扎实做好下半年各项工作，坚定信心、接续奋斗……</div>
+          </div>
+        </div>
+        <div class="news-item">
+          <div class="news-date">07/17</div>
+          <div class="news-content">
+            <div class="news-title">广州发布20个创新应用场景，覆盖低空经济、AI、生物医药</div>
+            <span class="news-tag">广州</span>
+            <span class="news-tag">热点</span>
+            <div style="font-size:12px;color:#888;margin-top:4px">广州市投资发展委员会联合广州金控集团重磅发布……</div>
+          </div>
+        </div>
+        <div class="news-item">
+          <div class="news-date">07/16</div>
+          <div class="news-content">
+            <div class="news-title">2026中国（广东）—东盟贸易促进与供应链合作机制对接交流会举行</div>
+            <span class="news-tag">外交</span>
+            <span class="news-tag">经济</span>
+            <div style="font-size:12px;color:#888;margin-top:4px">孟凡利出席并致辞，深化广东与东盟经贸合作……</div>
+          </div>
+        </div>
+        <div class="news-item">
+          <div class="news-date">07/15</div>
+          <div class="news-content">
+            <div class="news-title">"粤车南下"海关备案量突破1.1万宗，大湾区双向畅行</div>
+            <span class="news-tag">大湾区</span>
+            <div style="font-size:12px;color:#888;margin-top:4px">粤车南下政策持续扩容，赋能湾区旅游与经济……</div>
+          </div>
+        </div>
+        <div class="news-item">
+          <div class="news-date">07/14</div>
+          <div class="news-content">
+            <div class="news-title">黄坤明到惠州调研：高标准推进稔平半岛开发建设</div>
+            <span class="news-tag">省委</span>
+            <div style="font-size:12px;color:#888;margin-top:4px">加快探索海洋经济高质量发展新路，打造海上新广东……</div>
+          </div>
+        </div>
+        <div class="news-item">
+          <div class="news-date">07/14</div>
+          <div class="news-content">
+            <div class="news-title">孟凡利在韶关调研：让丹山碧水和强大算力发挥更大作用</div>
+            <span class="news-tag">韶关</span>
+            <span class="news-tag">算力</span>
+            <div style="font-size:12px;color:#888;margin-top:4px">"港澳数、韶关算"成跨境算力新场景……</div>
+          </div>
+        </div>
+        <div class="news-item">
+          <div class="news-date">07/10</div>
+          <div class="news-content">
+            <div class="news-title">省委常委会部署科技创新、防汛防台风、安全生产、审计等工作</div>
+            <span class="news-tag">省委</span>
+            <div style="font-size:12px;color:#888;margin-top:4px">黄坤明主持会议，学习贯彻习近平总书记重要讲话重要指示精神……</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 考点速递 -->
+      <div class="card">
+        <div class="card-title">🎯 时政考点速递 <span class="badge">必背</span></div>
+        <div class="note-item">
+          <h4>📌 广东人工智能核心产业规模突破3000亿</h4>
+          <p>2025年广东AI核心产业规模突破<b>3000亿元</b>，增速超<b>40%</b>，总量占全国<b>1/4</b>。考点：新质生产力、人工智能赋能产业。</p>
+          <div class="note-time">2026-07</div>
+        </div>
+        <div class="note-item">
+          <h4>📌 "百千万工程"持续深化</h4>
+          <p>广东破解城乡二元结构的创新举措，核心是<b>县镇村一体化发展</b>。考点：产业振兴、人才下乡、县域经济、城乡融合、生态文明。</p>
+          <div class="note-time">2026-07</div>
+        </div>
+        <div class="note-item">
+          <h4>📌 "粤车南下"突破1.1万宗</h4>
+          <p>大湾区互联互通标志性成果。考点：粤港澳大湾区一体化、跨境交通便利化、湾区经济融合。</p>
+          <div class="note-time">2026-07</div>
+        </div>
+        <div class="note-item">
+          <h4>📌 "港澳数、韶关算"跨境算力新模式</h4>
+          <p>港澳数据+韶关算力，"来数加工"成为跨境算力新场景。考点：数字经济、东数西算、数据安全。</p>
+          <div class="note-time">2026-07</div>
+        </div>
+        <div class="note-item">
+          <h4>📌 广东GDP连续37年全国第一</h4>
+          <p>广东GDP连续<b>37年</b>稳居全国首位，经济稳中有进、长期向好。考点：广东经济地位、高质量发展。</p>
+          <div class="note-time">2026-07</div>
+        </div>
+      </div>
+
+      <!-- 模考 -->
+      <div class="card">
+        <div class="card-title">📝 每周模考 <span class="badge">真题演练</span></div>
+        <div class="exam-card">
+          <h4>2026年广东省事业单位考情模考</h4>
+          <div class="meta">行测+公基 · 120分钟 · 已报名 2.3万人</div>
+          <span class="start-btn">立即开始 →</span>
+        </div>
+        <div class="exam-card">
+          <h4>2025年广东省直事业单位真题</h4>
+          <div class="meta">真题卷 · 含解析 · 平均分 67.5</div>
+          <span class="start-btn">立即开始 →</span>
+        </div>
+      </div>
+
+      <!-- 学习工具 -->
+      <div class="card">
+        <div class="card-title">🛠️ 学习工具</div>
+        <div class="memo-grid">
+          <div class="memo-card" onclick="switchView('pomodoro')">
+            <div class="memo-emoji">🍅</div>
+            <div class="memo-title">番茄钟</div>
+            <div class="memo-desc">专注25分钟</div>
+          </div>
+          <div class="memo-card" onclick="switchView('wrong')">
+            <div class="memo-emoji">📌</div>
+            <div class="memo-title">错题本</div>
+            <div class="memo-desc">已收录 86 题</div>
+          </div>
+          <div class="memo-card" onclick="switchView('notes')">
+            <div class="memo-emoji">📓</div>
+            <div class="memo-title">学习笔记</div>
+            <div class="memo-desc">记录 24 篇</div>
+          </div>
+          <div class="memo-card" onclick="switchView('plan')">
+            <div class="memo-emoji">📅</div>
+            <div class="memo-title">复习计划</div>
+            <div class="memo-desc">30天冲刺</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 刷题练习 -->
+    <div class="view" id="view-practice">
+      <div class="card">
+        <div class="card-title">📚 专项练习</div>
+        <div class="memo-grid">
+          <div class="memo-card" onclick="openCategory('言语理解')"><div class="memo-emoji">📖</div><div class="memo-title">言语理解</div><div class="memo-desc">328题</div></div>
+          <div class="memo-card" onclick="openCategory('数量关系')"><div class="memo-emoji">🔢</div><div class="memo-title">数量关系</div><div class="memo-desc">215题</div></div>
+          <div class="memo-card" onclick="openCategory('判断推理')"><div class="memo-emoji">🧩</div><div class="memo-title">判断推理</div><div class="memo-desc">412题</div></div>
+          <div class="memo-card" onclick="openCategory('资料分析')"><div class="memo-emoji">📈</div><div class="memo-title">资料分析</div><div class="memo-desc">186题</div></div>
+          <div class="memo-card" onclick="openCategory('政治理论')"><div class="memo-emoji">🏛️</div><div class="memo-title">政治理论</div><div class="memo-desc">295题</div></div>
+          <div class="memo-card" onclick="openCategory('法律基础')"><div class="memo-emoji">⚖️</div><div class="memo-title">法律基础</div><div class="memo-desc">248题</div></div>
+          <div class="memo-card" onclick="openCategory('时事政治')"><div class="memo-emoji">🌍</div><div class="memo-title">时事政治</div><div class="memo-desc">178题</div></div>
+          <div class="memo-card" onclick="openCategory('广东省情')"><div class="memo-emoji">📜</div><div class="memo-title">广东省情</div><div class="memo-desc">95题</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">✍️ 申论写作 <span class="badge">主观题</span></div>
+        <div class="question-item">
+          <span class="q-type sl">归纳概括</span>
+          <div class="q-stem"><b>题目：</b>根据给定资料1，概括广东在推动"百千万工程"中的主要举措。(15分)</div>
+          <div class="q-explain show">📝 <b>答题要点：</b>1. 产业振兴，发展特色农业；2. 人才下乡，科技特派员制度；3. 县域经济，承接产业转移；4. 城乡融合，基础设施一体化；5. 生态文明，绿美广东建设。</div>
+        </div>
+        <div class="question-item">
+          <span class="q-type sl">提出对策</span>
+          <div class="q-stem"><b>题目：</b>针对广东某市老旧小区改造中遇到的难题，提出对策建议。(20分)</div>
+        </div>
+        <div class="question-item">
+          <span class="q-type sl">大作文</span>
+          <div class="q-stem"><b>题目：</b>"功以才成，业由才广" — 结合广东实际，围绕人才与高质量发展写一篇文章。(40分)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 分类题库 -->
+    <div class="view" id="view-category">
+      <div class="card">
+        <div class="card-title" style="justify-content:space-between;">
+          <span id="category-title">📖 言语理解</span>
+          <span class="badge" style="cursor:pointer" onclick="switchView('practice')">✕ 返回</span>
+        </div>
+        <div class="question-item" id="category-question">
+          <span class="q-type lc" id="category-q-type">言语</span>
+          <span style="font-size:11px;color:#999" id="category-q-index">第1题 / 5题</span>
+          <div class="q-stem" id="category-q-stem">题目加载中...</div>
+          <div class="q-options" id="category-q-options"></div>
+          <div class="q-explain" id="category-q-explain">💡 <b>解析：</b></div>
+          <div class="q-actions">
+            <button class="q-btn" onclick="toggleExplain(this)">查看解析</button>
+            <button class="q-btn" onclick="collectQuestion()">⭐ 收藏</button>
+            <button class="q-btn" onclick="prevCategoryQuestion()">上一题</button>
+            <button class="q-btn primary" onclick="nextCategoryQuestion()">下一题</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="background:#f4f8f0">
+        <div style="font-size:13px;color:#5a7a4a;text-align:center;line-height:1.6">
+          <b>📌 刷题提示</b><br>
+          点击选项自动判分 · 收藏错题 · 返回首页看解析
+        </div>
+      </div>
+    </div>
+
+    <!-- 番茄钟 -->
+    <div class="view" id="view-pomodoro">
+      <div class="card">
+        <div class="card-title">🍅 番茄钟 · 专注学习</div>
+        <div class="pomodoro">
+          <div class="pomo-circle">
+            <svg width="200" height="200">
+              <circle cx="100" cy="100" r="90" stroke="#f0ebe0" stroke-width="8" fill="none"/>
+              <circle id="pomoCircle" cx="100" cy="100" r="90" stroke="#5a7a4a" stroke-width="8" fill="none" stroke-dasharray="565.5" stroke-dashoffset="0" stroke-linecap="round"/>
+            </svg>
+            <div class="center">
+              <div class="pomo-time" id="pomoTime">25:00</div>
+              <div class="pomo-label">点击开始专注</div>
+            </div>
+          </div>
+          <div class="pomo-btns">
+            <button class="primary" id="pomoStartBtn" onclick="togglePomo()">开始</button>
+            <button onclick="resetPomo()">重置</button>
+          </div>
+          <div style="margin-top:20px;font-size:13px;color:#888">今日已完成 🍅 × <b id="pomoCount">3</b></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 错题本 -->
+    <div class="view" id="view-wrong">
+      <div class="card">
+        <div class="card-title">📌 我的错题本</div>
+        <div class="stat-grid">
+          <div class="stat-item"><div class="stat-num">86</div><div class="stat-label">总错题</div></div>
+          <div class="stat-item"><div class="stat-num">23</div><div class="stat-label">已掌握</div></div>
+          <div class="stat-item"><div class="stat-num">63</div><div class="stat-label">待复习</div></div>
+        </div>
+        <div class="memo-grid" style="margin-top:14px">
+          <div class="memo-card"><div class="memo-emoji">📖</div><div class="memo-title">言语理解</div><div class="memo-desc">错 18 题</div></div>
+          <div class="memo-card"><div class="memo-emoji">🔢</div><div class="memo-title">数量关系</div><div class="memo-desc">错 26 题</div></div>
+          <div class="memo-card"><div class="memo-emoji">🧩</div><div class="memo-title">判断推理</div><div class="memo-desc">错 15 题</div></div>
+          <div class="memo-card"><div class="memo-emoji">📈</div><div class="memo-title">资料分析</div><div class="memo-desc">错 9 题</div></div>
+          <div class="memo-card"><div class="memo-emoji">🏛️</div><div class="memo-title">政治理论</div><div class="memo-desc">错 12 题</div></div>
+          <div class="memo-card"><div class="memo-emoji">⚖️</div><div class="memo-title">法律基础</div><div class="memo-desc">错 6 题</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 笔记 -->
+    <div class="view" id="view-notes">
+      <div class="card">
+        <div class="card-title">📓 我的学习笔记 <span class="badge">24篇</span></div>
+        <div class="note-item">
+          <h4>📌 言语理解—成语辨析汇总</h4>
+          <p>因噎废食/画蛇添足/杯弓蛇影/庖丁解牛的区别，结合20道例题分析…</p>
+          <div class="note-time">2026-07-22 21:30</div>
+        </div>
+        <div class="note-item">
+          <h4>📌 数量关系—工程问题常用公式</h4>
+          <p>工作效率=工作量/工作时间，合作效率=各效率之和…</p>
+          <div class="note-time">2026-07-21 19:45</div>
+        </div>
+        <div class="note-item">
+          <h4>📌 公基—马哲唯物辩证法三大规律</h4>
+          <p>对立统一规律、量变质变规律、否定之否定规律…</p>
+          <div class="note-time">2026-07-20 22:10</div>
+        </div>
+        <div class="note-item">
+          <h4>📌 申论—广东"百千万工程"考点</h4>
+          <p>县镇村发展一体化，是广东破解城乡二元结构的创新举措…</p>
+          <div class="note-time">2026-07-19 20:15</div>
+        </div>
+        <div class="note-item">
+          <h4>📌 时政—2026政府工作报告要点</h4>
+          <p>GDP增长5%左右，城镇新增就业1200万人以上…</p>
+          <div class="note-time">2026-07-18 18:20</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 计划 -->
+    <div class="view" id="view-plan">
+      <div class="card">
+        <div class="card-title">📅 30天冲刺计划</div>
+        <div class="score-row"><span>第1-10天 · 基础夯实</span><span class="score-badge">✅ 已完成</span></div>
+        <div class="score-row"><span>第11-20天 · 专项突破</span><span class="score-badge">进行中</span></div>
+        <div class="score-row"><span>第21-25天 · 模考训练</span><span class="score-num">未开始</span></div>
+        <div class="score-row"><span>第26-30天 · 冲刺押题</span><span class="score-num">未开始</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📊 模考成绩记录</div>
+        <div class="score-row"><span>07/15 第3次模考</span><span class="score-num">72.5分</span></div>
+        <div class="score-row"><span>07/08 第2次模考</span><span class="score-num">68.0分</span></div>
+        <div class="score-row"><span>07/01 第1次模考</span><span class="score-num">61.5分</span></div>
+        <div class="score-row"><span>平均进步</span><span class="score-num" style="color:#c08a35">+5.5分/次 ↑</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 底部导航 -->
+  <div class="bottom-nav">
+    <div class="nav-item active" onclick="switchView('home')"><div class="icon">🏠</div>首页</div>
+    <div class="nav-item" onclick="switchView('practice')"><div class="icon">📚</div>刷题</div>
+    <div class="nav-item" onclick="switchView('wrong')"><div class="icon">📌</div>错题</div>
+    <div class="nav-item" onclick="switchView('pomodoro')"><div class="icon">🍅</div>专注</div>
+    <div class="nav-item" onclick="switchView('notes')"><div class="icon">📓</div>笔记</div>
+  </div>
+</div>
+
+<!-- 侧边栏遮罩 -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<!-- 侧边栏 -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-name">考公人小胡</div>
+    <div class="sidebar-sub">广东事业编备考工作台</div>
+  </div>
+  <div class="sidebar-menu">
+    <div class="menu-item active" onclick="switchView('home');toggleSidebar()"><span class="emoji">🏠</span>首页</div>
+    <div class="menu-item" onclick="switchView('home');toggleSidebar()"><span class="emoji">📅</span>每日计划</div>
+    <div class="menu-item" onclick="switchView('practice');toggleSidebar()"><span class="emoji">📚</span>每日一练</div>
+    <div class="menu-item" onclick="switchView('practice');toggleSidebar()"><span class="emoji">🔥</span>热门考点</div>
+    <div class="menu-item" onclick="switchView('practice');toggleSidebar()"><span class="emoji">📊</span>行测模考</div>
+    <div class="menu-item" onclick="switchView('practice');toggleSidebar()"><span class="emoji">🏛️</span>公基题库</div>
+    <div class="menu-item" onclick="switchView('practice');toggleSidebar()"><span class="emoji">✍️</span>申论范文</div>
+    <div class="menu-item" onclick="switchView('home');toggleSidebar()"><span class="emoji">📰</span>时政省情</div>
+    <div class="menu-item" onclick="switchView('wrong');toggleSidebar()"><span class="emoji">📌</span>错题本</div>
+    <div class="menu-item" onclick="switchView('notes');toggleSidebar()"><span class="emoji">📓</span>学习笔记</div>
+    <div class="menu-item" onclick="switchView('pomodoro');toggleSidebar()"><span class="emoji">🍅</span>番茄专注</div>
+    <div class="menu-item" onclick="switchView('plan');toggleSidebar()"><span class="emoji">📅</span>复习计划</div>
+  </div>
+  <div class="sidebar-footer">
+    <div>状态：<span class="status">复更中 · 距离考试 89 天</span></div>
+    <div>📅 题库每两周更新 · 时政每周刷新</div>
+    <div style="margin-top:6px;color:#aaa;font-size:11px">最近更新：2026-07-23 v1.4（分类题库可点击）</div>
+  </div>
+</div>
+
+<script>
+  // 注册 Service Worker（离线缓存）
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').then(() => {
+        console.log('SW注册成功，App可离线使用');
+      }).catch(e => console.log('SW注册失败:', e));
+    });
+  }
+
+  // 状态栏时间
+  function updateTime() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    document.getElementById('statusTime').textContent = `${h}:${m}`;
+  }
+  updateTime();
+  setInterval(updateTime, 30000);
+
+  // 侧边栏
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('show');
+    document.getElementById('sidebarOverlay').classList.toggle('show');
+  }
+
+  // 切换页面
+  function switchView(name) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    const target = document.getElementById('view-' + name);
+    if (target) {
+      target.classList.add('active');
+      document.querySelector('.content').scrollTop = 0;
+    }
+    // 更新底部导航
+    const navMap = { home: 0, practice: 1, wrong: 2, pomodoro: 3, notes: 4, category: 1 };
+    if (navMap[name] !== undefined) {
+      document.querySelectorAll('.nav-item').forEach((n, i) => {
+        n.classList.toggle('active', i === navMap[name]);
+      });
+    }
+  }
+
+  // 行测每日一练题库
+  const dailyQuestions = [
+    {
+      type: '言语',
+      stem: '下列词语中，意思最接近"因噎废食"的一项是：',
+      options: ['画蛇添足', '矫枉过正', '杯弓蛇影', '庖丁解牛'],
+      correct: 1,
+      explain: '"因噎废食"指因偶然的小事而停止做该做的事，强调"停止/废弃"。A项画蛇添足是做事多此一举；C项杯弓蛇影是疑神疑鬼；D项庖丁解牛比喻经过反复实践，掌握了事物的客观规律。本题选B矫枉过正（纠正偏差过度）。'
+    },
+    {
+      type: '言语',
+      stem: '填入横线处最恰当的一项是："面对复杂局面，领导干部要善于______，抓住主要矛盾和矛盾的主要方面。"',
+      options: ['见微知著', '纲举目张', '未雨绸缪', '举一反三'],
+      correct: 1,
+      explain: '"纲举目张"比喻抓住事物的关键，带动其他环节。题干强调抓住主要矛盾，选B。'
+    },
+    {
+      type: '数量',
+      stem: '一项工程，甲单独做10天完成，乙单独做15天完成。两人合作需要多少天完成？',
+      options: ['5天', '6天', '7天', '8天'],
+      correct: 1,
+      explain: '甲效率1/10，乙效率1/15，合作效率=1/10+1/15=1/6，故需6天。选B。'
+    },
+    {
+      type: '判断',
+      stem: '所有广东人都是南方人，有些北方人在广东工作。由此可以推出：',
+      options: ['所有在广东工作的都是南方人', '有些在广东工作的不是南方人', '有些南方人不是广东人', '所有北方人都不是广东人'],
+      correct: 3,
+      explain: 'A错，北方人在广东工作就不是南方人；B不能确定；C不能必然推出；D正确，广东人是南方人，北方人不是南方人，所以北方人不是广东人。'
+    },
+    {
+      type: '资料',
+      stem: '2025年广东GDP为14.16万亿元，2026年上半年同比增长5.1%。若全年保持此增速，2026年GDP约为多少？',
+      options: ['14.7万亿', '14.9万亿', '15.1万亿', '15.3万亿'],
+      correct: 1,
+      explain: '14.16 × (1+5.1%) ≈ 14.16 × 1.051 ≈ 14.88万亿，最接近14.9万亿。选B。'
+    }
+  ];
+
+  // 公基题库
+  const gongjiQuestions = [
+    {
+      type: '政治',
+      stem: '我国社会主义初级阶段的基本经济制度是：',
+      options: ['计划经济', '市场经济', '公有制为主体，多种所有制经济共同发展', '私有制为主体'],
+      correct: 2,
+      explain: '我国基本经济制度是公有制为主体、多种所有制经济共同发展，按劳分配为主体、多种分配方式并存，社会主义市场经济体制。'
+    },
+    {
+      type: '法律',
+      stem: '根据《民法典》，下列哪项属于无民事行为能力人？',
+      options: ['8周岁以上的未成年人', '不能完全辨认自己行为的成年人', '不满8周岁的未成年人', '16周岁以上以自己劳动收入为主要生活来源的未成年人'],
+      correct: 2,
+      explain: '不满8周岁的未成年人是无民事行为能力人，由其法定代理人代理实施民事法律行为。'
+    },
+    {
+      type: '时政',
+      stem: '2026年7月，广东发布20个创新应用场景，重点覆盖的领域不包括：',
+      options: ['低空经济', '人工智能', '生物医药', '传统纺织'],
+      correct: 3,
+      explain: '广州发布20个创新应用场景，覆盖低空经济、人工智能、生物医药、智慧城市等重点优势及新兴赛道，不包括传统纺织。'
+    },
+    {
+      type: '省情',
+      stem: '广东GDP已连续多少年位居全国首位？',
+      options: ['30年', '34年', '37年', '40年'],
+      correct: 2,
+      explain: '广东GDP连续37年稳居全国首位，经济稳中有进、长期向好。'
+    },
+    {
+      type: '政治',
+      stem: '马克思主义哲学的直接理论来源是：',
+      options: ['英国古典政治经济学', '英法空想社会主义', '德国古典哲学', '细胞学说、能量守恒定律和生物进化论'],
+      correct: 2,
+      explain: '德国古典哲学（主要是黑格尔辩证法和费尔巴哈唯物主义）是马克思主义哲学的直接理论来源。'
+    }
+  ];
+
+  // 分类题库（专项练习用）
+  const categoryBank = {
+    '言语理解': [
+      {
+        type: '言语',
+        stem: '下列词语中，意思最接近"因噎废食"的一项是：',
+        options: ['画蛇添足', '矫枉过正', '杯弓蛇影', '庖丁解牛'],
+        correct: 1,
+        explain: '"因噎废食"指因偶然的小事而停止做该做的事，强调"停止/废弃"。本题选B矫枉过正（纠正偏差过度）。'
+      },
+      {
+        type: '言语',
+        stem: '填入横线处最恰当的一项是："面对复杂局面，领导干部要善于______，抓住主要矛盾和矛盾的主要方面。"',
+        options: ['见微知著', '纲举目张', '未雨绸缪', '举一反三'],
+        correct: 1,
+        explain: '"纲举目张"比喻抓住事物的关键，带动其他环节。题干强调抓住主要矛盾，选B。'
+      },
+      {
+        type: '言语',
+        stem: '下列句子中没有语病的一项是：',
+        options: ['通过这次活动，使我明白了团结的重要性。', '他的写作水平明显改进了。', '广东的经济建设取得了举世瞩目的成就。', '我断定他可能生病了。'],
+        correct: 2,
+        explain: 'A项缺主语，应删去"通过"或"使"；B项"水平"与"改进"搭配不当；D项"断定"与"可能"矛盾。选C。'
+      },
+      {
+        type: '言语',
+        stem: '"耳濡目染"与"潜移默化"的主要区别在于：',
+        options: ['前者侧重听觉，后者侧重视觉', '前者侧重经常接触后的自然影响，后者侧重无形中的改变', '前者是贬义，后者是褒义', '前者用于人，后者用于物'],
+        correct: 1,
+        explain: '"耳濡目染"强调经常听到看到而自然受到影响；"潜移默化"强调人的思想、性格在不知不觉中受到感染、影响而发生变化。选B。'
+      }
+    ],
+    '数量关系': [
+      {
+        type: '数量',
+        stem: '一项工程，甲单独做10天完成，乙单独做15天完成。两人合作需要多少天完成？',
+        options: ['5天', '6天', '7天', '8天'],
+        correct: 1,
+        explain: '甲效率1/10，乙效率1/15，合作效率=1/10+1/15=1/6，故需6天。选B。'
+      },
+      {
+        type: '数量',
+        stem: '某商品原价200元，先涨价20%，再降价20%，现价是多少？',
+        options: ['192元', '196元', '200元', '204元'],
+        correct: 0,
+        explain: '200×(1+20%)=240元；240×(1-20%)=192元。注意：涨价和降价基数不同。选A。'
+      },
+      {
+        type: '数量',
+        stem: '甲乙两人从相距300千米的两地同时相向而行，甲速60km/h，乙速40km/h，几小时相遇？',
+        options: ['2小时', '3小时', '4小时', '5小时'],
+        correct: 1,
+        explain: '相遇时间=总路程÷速度和=300÷(60+40)=3小时。选B。'
+      },
+      {
+        type: '数量',
+        stem: '一个水池有甲、乙两个进水管，单开甲管6小时注满，单开乙管4小时注满。两管同开需几小时注满？',
+        options: ['2小时', '2.4小时', '3小时', '5小时'],
+        correct: 1,
+        explain: '甲效率1/6，乙效率1/4，合效率=1/6+1/4=5/12，时间=12/5=2.4小时。选B。'
+      }
+    ],
+    '判断推理': [
+      {
+        type: '判断',
+        stem: '所有广东人都是南方人，有些北方人在广东工作。由此可以推出：',
+        options: ['所有在广东工作的都是南方人', '有些在广东工作的不是南方人', '有些南方人不是广东人', '所有北方人都不是广东人'],
+        correct: 3,
+        explain: 'A错，北方人在广东工作就不是南方人；B不能确定；C不能必然推出；D正确。'
+      },
+      {
+        type: '判断',
+        stem: '如果天下雨，那么地湿。现在地湿了，所以：',
+        options: ['一定下雨了', '可能下雨了', '一定没下雨', '无法判断'],
+        correct: 1,
+        explain: '"下雨→地湿"是充分条件，地湿可能是下雨也可能是洒水等其他原因。选B。'
+      },
+      {
+        type: '判断',
+        stem: '医生：医院：治疗，相当于：教师：学校：______',
+        options: ['上课', '考试', '教育', '学习'],
+        correct: 2,
+        explain: '医生在医院进行治疗，教师在学校进行教育。职业、场所、行为的对应关系。选C。'
+      },
+      {
+        type: '判断',
+        stem: '下列图形推理规律最可能的是：△ □ ○ △ □ ○ △ □ ______',
+        options: ['△', '□', '○', '☆'],
+        correct: 2,
+        explain: '周期循环规律：△、□、○为一组循环，所以下一个是○。选C。'
+      }
+    ],
+    '资料分析': [
+      {
+        type: '资料',
+        stem: '2025年广东GDP为14.16万亿元，2026年上半年同比增长5.1%。若全年保持此增速，2026年GDP约为多少？',
+        options: ['14.7万亿', '14.9万亿', '15.1万亿', '15.3万亿'],
+        correct: 1,
+        explain: '14.16 × (1+5.1%) ≈ 14.88万亿，最接近14.9万亿。选B。'
+      },
+      {
+        type: '资料',
+        stem: '某市2026年财政支出中，教育支出占25%，医疗支出占20%，社会保障支出占15%，三项合计占比是多少？',
+        options: ['50%', '55%', '60%', '65%'],
+        correct: 2,
+        explain: '25%+20%+15%=60%。选C。'
+      },
+      {
+        type: '资料',
+        stem: '2026年一季度广东外贸进出口增长8.2%，其中出口增长10.5%，进口增长5.1%。出口增速比进口增速高多少个百分点？',
+        options: ['4.4', '5.1', '5.4', '6.4'],
+        correct: 2,
+        explain: '10.5% - 5.1% = 5.4个百分点。选C。'
+      }
+    ],
+    '政治理论': [
+      {
+        type: '政治',
+        stem: '我国社会主义初级阶段的基本经济制度是：',
+        options: ['计划经济', '市场经济', '公有制为主体，多种所有制经济共同发展', '私有制为主体'],
+        correct: 2,
+        explain: '我国基本经济制度是公有制为主体、多种所有制经济共同发展。选C。'
+      },
+      {
+        type: '政治',
+        stem: '马克思主义哲学的直接理论来源是：',
+        options: ['英国古典政治经济学', '英法空想社会主义', '德国古典哲学', '细胞学说、能量守恒定律和生物进化论'],
+        correct: 2,
+        explain: '德国古典哲学是马克思主义哲学的直接理论来源。选C。'
+      },
+      {
+        type: '政治',
+        stem: '中国共产党的根本宗旨是：',
+        options: ['实现共产主义', '全心全意为人民服务', '建设社会主义现代化强国', '实现中华民族伟大复兴'],
+        correct: 1,
+        explain: '全心全意为人民服务是中国共产党的根本宗旨。选B。'
+      },
+      {
+        type: '政治',
+        stem: '"两个确立"是指：确立习近平同志党中央的核心、全党的核心地位，确立______。',
+        options: ['中国特色社会主义制度', '习近平新时代中国特色社会主义思想的指导地位', '全面建设社会主义现代化国家目标', '新时代党的建设总要求'],
+        correct: 1,
+        explain: '"两个确立"：确立习近平同志党中央的核心、全党的核心地位，确立习近平新时代中国特色社会主义思想的指导地位。选B。'
+      }
+    ],
+    '法律基础': [
+      {
+        type: '法律',
+        stem: '根据《民法典》，下列哪项属于无民事行为能力人？',
+        options: ['8周岁以上的未成年人', '不能完全辨认自己行为的成年人', '不满8周岁的未成年人', '16周岁以上以自己劳动收入为主要生活来源的未成年人'],
+        correct: 2,
+        explain: '不满8周岁的未成年人是无民事行为能力人。选C。'
+      },
+      {
+        type: '法律',
+        stem: '我国宪法规定，公民的合法的私有财产______。',
+        options: ['不受侵犯', '可以任意处置', '归国家所有', '不受保护'],
+        correct: 0,
+        explain: '《宪法》第十三条规定：公民的合法的私有财产不受侵犯。选A。'
+      },
+      {
+        type: '法律',
+        stem: '下列不属于行政处罚种类的是：',
+        options: ['警告', '罚款', '拘役', '行政拘留'],
+        correct: 2,
+        explain: '拘役是刑罚种类，不是行政处罚。行政处罚包括警告、罚款、没收违法所得、责令停产停业、暂扣或吊销许可证、行政拘留等。选C。'
+      }
+    ],
+    '时事政治': [
+      {
+        type: '时政',
+        stem: '2026年7月，广东发布20个创新应用场景，重点覆盖的领域不包括：',
+        options: ['低空经济', '人工智能', '生物医药', '传统纺织'],
+        correct: 3,
+        explain: '广州发布20个创新应用场景，覆盖低空经济、人工智能、生物医药、智慧城市等重点优势及新兴赛道，不包括传统纺织。选D。'
+      },
+      {
+        type: '时政',
+        stem: '2026年7月，"粤车南下"海关备案量突破多少宗？',
+        options: ['5000宗', '8000宗', '1.1万宗', '2万宗'],
+        correct: 2,
+        explain: '"粤车南下"海关备案量突破1.1万宗。选C。'
+      },
+      {
+        type: '时政',
+        stem: '2025年广东人工智能核心产业规模突破多少亿元？',
+        options: ['1000亿', '2000亿', '3000亿', '5000亿'],
+        correct: 2,
+        explain: '2025年广东人工智能核心产业规模突破3000亿元，占全国四分之一。选C。'
+      }
+    ],
+    '广东省情': [
+      {
+        type: '省情',
+        stem: '广东GDP已连续多少年位居全国首位？',
+        options: ['30年', '34年', '37年', '40年'],
+        correct: 2,
+        explain: '广东GDP连续37年稳居全国首位。选C。'
+      },
+      {
+        type: '省情',
+        stem: '下列哪个城市不是粤港澳大湾区核心城市？',
+        options: ['广州', '深圳', '珠海', '佛山'],
+        correct: 2,
+        explain: '粤港澳大湾区四大中心城市是广州、深圳、香港、澳门。珠海是重要节点城市但不是核心城市。选C。'
+      },
+      {
+        type: '省情',
+        stem: '广东"百千万工程"中的"百千万"是指：',
+        options: ['百县、千镇、万村', '百亿、千亿、万亿', '百企、千村、万户', '百会、千镇、万企'],
+        correct: 0,
+        explain: '"百千万工程"指百县千镇万村高质量发展工程。选A。'
+      },
+      {
+        type: '省情',
+        stem: '广东的省会是：',
+        options: ['深圳', '广州', '珠海', '佛山'],
+        correct: 1,
+        explain: '广东省会是广州。选B。'
+      }
+    ]
+  };
+
+  let currentCategory = '言语理解';
+  let categoryIndex = 0;
+
+  // 渲染题目
+  function renderQuestion(questions, index, prefix, stemId, optionsId, explainId, indexId) {
+    const q = questions[index];
+    document.getElementById(indexId).textContent = `第${index + 1}题 / ${questions.length}题`;
+    document.getElementById(stemId).textContent = q.stem;
+    document.getElementById(explainId).innerHTML = `💡 <b>解析：</b>${q.explain}`;
+
+    const optsContainer = document.getElementById(optionsId);
+    optsContainer.innerHTML = '';
+    const labels = ['A', 'B', 'C', 'D'];
+    q.options.forEach((opt, i) => {
+      const div = document.createElement('div');
+      div.className = 'q-option';
+      div.setAttribute('data-correct', i === q.correct ? '1' : '0');
+      div.textContent = `${labels[i]}. ${opt}`;
+      div.onclick = function() { checkAnswer(this); };
+      optsContainer.appendChild(div);
+    });
+
+    // 隐藏解析
+    document.getElementById(explainId).classList.remove('show');
+    // 重置查看解析按钮文字
+    const item = document.getElementById(stemId).parentElement;
+    const btn = item.querySelector('.q-btn');
+    if (btn) btn.textContent = '查看解析';
+  }
+
+  // 初始化
+  renderQuestion(dailyQuestions, dailyIndex, '', 'daily-q-stem', 'daily-q-options', 'daily-q-explain', 'daily-q-index');
+
+  // 答题
+  function checkAnswer(el) {
+    const parent = el.parentElement;
+    const options = parent.querySelectorAll('.q-option');
+    const isCorrect = el.getAttribute('data-correct') === '1';
+
+    options.forEach(o => {
+      o.onclick = null;
+      o.style.cursor = 'default';
+      if (o.getAttribute('data-correct') === '1') {
+        o.classList.add('correct');
+      }
+    });
+
+    if (!isCorrect) {
+      el.classList.add('wrong');
+    }
+
+    // 显示解析
+    const explain = parent.parentElement.querySelector('.q-explain');
+    if (explain) explain.classList.add('show');
+    const btn = parent.parentElement.querySelector('.q-btn');
+    if (btn) btn.textContent = '隐藏解析';
+  }
+
+  function toggleExplain(btn) {
+    const explain = btn.parentElement.parentElement.querySelector('.q-explain');
+    if (explain) explain.classList.toggle('show');
+    btn.textContent = explain.classList.contains('show') ? '隐藏解析' : '查看解析';
+  }
+
+  function nextQuestion() {
+    dailyIndex++;
+    if (dailyIndex >= dailyQuestions.length) dailyIndex = 0;
+    renderQuestion(dailyQuestions, dailyIndex, '', 'daily-q-stem', 'daily-q-options', 'daily-q-explain', 'daily-q-index');
+  }
+
+  function nextGongjiQuestion() {
+    gongjiIndex++;
+    if (gongjiIndex >= gongjiQuestions.length) gongjiIndex = 0;
+    renderQuestion(gongjiQuestions, gongjiIndex, '', 'gongji-q-stem', 'gongji-q-options', 'gongji-q-explain', 'gongji-q-index');
+  }
+
+  // 分类题库
+  function openCategory(category) {
+    currentCategory = category;
+    categoryIndex = 0;
+    switchView('category');
+    document.getElementById('category-title').innerHTML = getCategoryIcon(category) + ' ' + category;
+    renderCategoryQuestion();
+  }
+
+  function getCategoryIcon(category) {
+    const icons = {
+      '言语理解': '📖',
+      '数量关系': '🔢',
+      '判断推理': '🧩',
+      '资料分析': '📈',
+      '政治理论': '🏛️',
+      '法律基础': '⚖️',
+      '时事政治': '🌍',
+      '广东省情': '📜'
+    };
+    return icons[category] || '📚';
+  }
+
+  function getCategoryTypeClass(category) {
+    const classes = {
+      '言语理解': 'lc',
+      '数量关系': 'sz',
+      '判断推理': 'sz',
+      '资料分析': 'sz',
+      '政治理论': 'gj',
+      '法律基础': 'gj',
+      '时事政治': 'gj',
+      '广东省情': 'gj'
+    };
+    return classes[category] || 'lc';
+  }
+
+  function renderCategoryQuestion() {
+    const questions = categoryBank[currentCategory];
+    const q = questions[categoryIndex];
+    document.getElementById('category-q-index').textContent = `第${categoryIndex + 1}题 / ${questions.length}题`;
+    document.getElementById('category-q-type').textContent = q.type;
+    document.getElementById('category-q-type').className = 'q-type ' + getCategoryTypeClass(currentCategory);
+    document.getElementById('category-q-stem').textContent = q.stem;
+    document.getElementById('category-q-explain').innerHTML = `💡 <b>解析：</b>${q.explain}`;
+
+    const optsContainer = document.getElementById('category-q-options');
+    optsContainer.innerHTML = '';
+    const labels = ['A', 'B', 'C', 'D'];
+    q.options.forEach((opt, i) => {
+      const div = document.createElement('div');
+      div.className = 'q-option';
+      div.setAttribute('data-correct', i === q.correct ? '1' : '0');
+      div.textContent = `${labels[i]}. ${opt}`;
+      div.onclick = function() { checkAnswer(this); };
+      optsContainer.appendChild(div);
+    });
+
+    document.getElementById('category-q-explain').classList.remove('show');
+    const item = document.getElementById('category-question');
+    const btn = item.querySelector('.q-btn');
+    if (btn) btn.textContent = '查看解析';
+  }
+
+  function nextCategoryQuestion() {
+    const questions = categoryBank[currentCategory];
+    categoryIndex++;
+    if (categoryIndex >= questions.length) {
+      categoryIndex = 0;
+      alert(`🎉 ${currentCategory} 已完成，重新从第1题开始！`);
+    }
+    renderCategoryQuestion();
+  }
+
+  function prevCategoryQuestion() {
+    const questions = categoryBank[currentCategory];
+    categoryIndex--;
+    if (categoryIndex < 0) categoryIndex = questions.length - 1;
+    renderCategoryQuestion();
+  }
+
+  function collectQuestion() {
+    alert('⭐ 已收藏到错题本！');
+  }
+
+  // 番茄钟
+  let pomoSeconds = 25 * 60;
+  let pomoTotal = 25 * 60;
+  let pomoRunning = false;
+  let pomoTimer = null;
+  let pomoCompleted = 3;
+
+  function updatePomo() {
+    const m = String(Math.floor(pomoSeconds / 60)).padStart(2, '0');
+    const s = String(pomoSeconds % 60).padStart(2, '0');
+    document.getElementById('pomoTime').textContent = `${m}:${s}`;
+    const offset = 565.5 * (1 - pomoSeconds / pomoTotal);
+    document.getElementById('pomoCircle').setAttribute('stroke-dashoffset', offset);
+  }
+
+  function togglePomo() {
+    const btn = document.getElementById('pomoStartBtn');
+    if (pomoRunning) {
+      clearInterval(pomoTimer);
+      pomoRunning = false;
+      btn.textContent = '开始';
+    } else {
+      pomoRunning = true;
+      btn.textContent = '暂停';
+      pomoTimer = setInterval(() => {
+        pomoSeconds--;
+        if (pomoSeconds <= 0) {
+          clearInterval(pomoTimer);
+          pomoRunning = false;
+          pomoCompleted++;
+          document.getElementById('pomoCount').textContent = pomoCompleted;
+          pomoSeconds = pomoTotal;
+          btn.textContent = '开始';
+          alert('🎉 番茄完成！休息5分钟吧~');
+        }
+        updatePomo();
+      }, 1000);
+    }
+  }
+
+  function resetPomo() {
+    clearInterval(pomoTimer);
+    pomoRunning = false;
+    pomoSeconds = pomoTotal;
+    document.getElementById('pomoStartBtn').textContent = '开始';
+    updatePomo();
+  }
+
+  updatePomo();
+</script>
+</body>
+</html>
