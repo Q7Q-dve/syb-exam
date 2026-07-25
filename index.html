@@ -245,10 +245,10 @@
           <span style="font-size:11px;color:#999" id="daily-q-index">第1题 / 5题</span>
           <div class="q-stem" id="daily-q-stem">下列词语中，意思最接近"因噎废食"的一项是：</div>
           <div class="q-options" id="daily-q-options">
-            <div class="q-option" data-correct="0">A. 画蛇添足</div>
-            <div class="q-option" data-correct="1">B. 矫枉过正</div>
-            <div class="q-option" data-correct="0">C. 杯弓蛇影</div>
-            <div class="q-option" data-correct="0">D. 庖丁解牛</div>
+            <div class="q-option" data-correct="0" onclick="checkAnswer(this)">A. 画蛇添足</div>
+            <div class="q-option" data-correct="1" onclick="checkAnswer(this)">B. 矫枉过正</div>
+            <div class="q-option" data-correct="0" onclick="checkAnswer(this)">C. 杯弓蛇影</div>
+            <div class="q-option" data-correct="0" onclick="checkAnswer(this)">D. 庖丁解牛</div>
           </div>
           <div class="q-explain" id="daily-q-explain">💡 <b>解析：</b>"因噎废食"指因偶然的小事而停止做该做的事，强调"停止/废弃"。A项画蛇添足是做事多此一举；C项杯弓蛇影是疑神疑鬼；D项庖丁解牛比喻经过反复实践，掌握了事物的客观规律。正确答案需结合语境判断，本题选<b>B矫枉过正</b>(纠正偏差过度)。</div>
           <div class="q-actions">
@@ -266,10 +266,10 @@
           <span style="font-size:11px;color:#999" id="gongji-q-index">高频考点</span>
           <div class="q-stem" id="gongji-q-stem">我国社会主义初级阶段的基本经济制度是：</div>
           <div class="q-options" id="gongji-q-options">
-            <div class="q-option" data-correct="0">A. 计划经济</div>
-            <div class="q-option" data-correct="0">B. 市场经济</div>
-            <div class="q-option" data-correct="1">C. 公有制为主体，多种所有制经济共同发展</div>
-            <div class="q-option" data-correct="0">D. 私有制为主体</div>
+            <div class="q-option" data-correct="0" onclick="checkAnswer(this)">A. 计划经济</div>
+            <div class="q-option" data-correct="0" onclick="checkAnswer(this)">B. 市场经济</div>
+            <div class="q-option" data-correct="1" onclick="checkAnswer(this)">C. 公有制为主体，多种所有制经济共同发展</div>
+            <div class="q-option" data-correct="0" onclick="checkAnswer(this)">D. 私有制为主体</div>
           </div>
           <div class="q-explain" id="gongji-q-explain">💡 <b>解析：</b>我国基本经济制度是<b>公有制为主体、多种所有制经济共同发展</b>，按劳分配为主体、多种分配方式并存，社会主义市场经济体制。注意区分"基本经济制度"与"分配制度"。</div>
           <div class="q-actions">
@@ -689,36 +689,47 @@
   // 更新首页进度
   function updateHomeProgress() {
     const data = getToday();
-    // 计算打卡天数
-    const startDate = new Date(data.startDate || new Date().toDateString());
-    const days = Math.floor((new Date() - startDate) / 86400000) + 1;
-    document.getElementById('dayCount').textContent = days;
 
-    // 问候语随时间变化
-    const hour = new Date().getHours();
-    let greeting = '你好，考公人 👋';
-    if (hour < 6) greeting = '夜深了，早点休息 🌙';
-    else if (hour < 9) greeting = '早上好，考公人 🌅';
-    else if (hour < 12) greeting = '上午好，加油刷题 📖';
-    else if (hour < 14) greeting = '中午好，休息一下 😊';
-    else if (hour < 18) greeting = '下午好，继续努力 💪';
-    else if (hour < 22) greeting = '晚上好，冲刺复习 🌟';
-    else greeting = '夜深了，注意休息 🌙';
-    document.getElementById('greetingText').textContent = greeting;
+    const dayCount = document.getElementById('dayCount');
+    if (dayCount) {
+      const startDate = new Date(data.startDate || new Date().toDateString());
+      const days = Math.floor((new Date() - startDate) / 86400000) + 1;
+      dayCount.textContent = days;
+    }
 
-    // 学习进度：目标5小时=300分钟
-    const studyMinutes = data.studyMinutes || 0;
-    const targetMinutes = 300;
-    const percent = Math.min(100, Math.round(studyMinutes / targetMinutes * 100));
-    const hours = (studyMinutes / 60).toFixed(1);
-    document.getElementById('progressBar').style.width = percent + '%';
-    document.getElementById('progressLabel').textContent = `今日学习 ${hours} / 5 小时`;
-    document.getElementById('progressPercent').textContent = percent + '%';
+    const greetingText = document.getElementById('greetingText');
+    if (greetingText) {
+      const hour = new Date().getHours();
+      let greeting = '你好，考公人 👋';
+      if (hour < 6) greeting = '夜深了，早点休息 🌙';
+      else if (hour < 9) greeting = '早上好，考公人 🌅';
+      else if (hour < 12) greeting = '上午好，加油刷题 📖';
+      else if (hour < 14) greeting = '中午好，休息一下 😊';
+      else if (hour < 18) greeting = '下午好，继续努力 💪';
+      else if (hour < 22) greeting = '晚上好，冲刺复习 🌟';
+      else greeting = '夜深了，注意休息 🌙';
+      greetingText.textContent = greeting;
+    }
 
-    // 每日任务进度
-    const answered = data.questionsAnswered || 0;
-    const target = 10;
-    document.getElementById('dailyTaskText').textContent = `今日已完成 ${Math.min(answered, target)}/${target} 题`;
+    const progressBar = document.getElementById('progressBar');
+    const progressLabel = document.getElementById('progressLabel');
+    const progressPercent = document.getElementById('progressPercent');
+    if (progressBar && progressLabel && progressPercent) {
+      const studyMinutes = data.studyMinutes || 0;
+      const targetMinutes = 300;
+      const percent = Math.min(100, Math.round(studyMinutes / targetMinutes * 100));
+      const hours = (studyMinutes / 60).toFixed(1);
+      progressBar.style.width = percent + '%';
+      progressLabel.textContent = `今日学习 ${hours} / 5 小时`;
+      progressPercent.textContent = percent + '%';
+    }
+
+    const dailyTaskText = document.getElementById('dailyTaskText');
+    if (dailyTaskText) {
+      const answered = data.questionsAnswered || 0;
+      const target = 10;
+      dailyTaskText.textContent = `今日已完成 ${Math.min(answered, target)}/${target} 题`;
+    }
   }
 
   // ===== 真实电量显示 =====
@@ -741,23 +752,8 @@
   }
 
   // ===== Service Worker =====
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=2.2').then((reg) => {
-        console.log('SW注册成功');
-        // 检查更新
-        reg.addEventListener('updatefound', () => {
-          const newWorker = reg.installing;
-          newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              // 有新版本，自动刷新
-              window.location.reload();
-            }
-          });
-        });
-      }).catch(e => console.log('SW注册失败:', e));
-    });
-  }
+  // 暂时禁用SW，避免缓存导致旧版无法更新
+  console.log('PWA模式');
 
   // 状态栏时间
   function updateTime() {
