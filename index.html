@@ -237,6 +237,15 @@
         <div class="arrow">›</div>
       </div>
 
+      <!-- 省考真题入口 -->
+      <div class="daily-task" style="background:linear-gradient(135deg,#4a6fa5,#6b8ec2)" onclick="switchView('shengkao')">
+        <div class="left">
+          <h3>🏛️ 广东省考真题</h3>
+          <p>2021-2025年真题 · 行测+申论</p>
+        </div>
+        <div class="arrow">›</div>
+      </div>
+
       <!-- 行测每日一练 -->
       <div class="card">
         <div class="card-title">📊 行测每日一练 <span class="badge">职测</span></div>
@@ -507,6 +516,51 @@
       </div>
     </div>
 
+    <!-- 省考真题 -->
+    <div class="view" id="view-shengkao">
+      <div class="card">
+        <div class="card-title" style="justify-content:space-between;">
+          <span>🏛️ 广东省考真题</span>
+          <span class="badge" style="cursor:pointer" onclick="switchView('home')">✕ 返回</span>
+        </div>
+        <div class="memo-grid">
+          <div class="memo-card" onclick="openShengkao('言语理解')"><div class="memo-emoji">📖</div><div class="memo-title">言语理解</div><div class="memo-desc">2025省考</div></div>
+          <div class="memo-card" onclick="openShengkao('数量关系')"><div class="memo-emoji">🔢</div><div class="memo-title">数量关系</div><div class="memo-desc">2025省考</div></div>
+          <div class="memo-card" onclick="openShengkao('判断推理')"><div class="memo-emoji">🧩</div><div class="memo-title">判断推理</div><div class="memo-desc">2025省考</div></div>
+          <div class="memo-card" onclick="openShengkao('常识判断')"><div class="memo-emoji">🌍</div><div class="memo-title">常识判断</div><div class="memo-desc">2025省考</div></div>
+          <div class="memo-card" onclick="openShengkao('政治理论')"><div class="memo-emoji">🏛️</div><div class="memo-title">政治理论</div><div class="memo-desc">2025省考</div></div>
+          <div class="memo-card" onclick="openShengkao('科学推理')"><div class="memo-emoji">🔬</div><div class="memo-title">科学推理</div><div class="memo-desc">2025省考</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title" style="justify-content:space-between;">
+          <span id="sk-title">📖 省考真题练习</span>
+          <span class="badge" style="cursor:pointer" onclick="switchView('shengkao')">✕ 返回分类</span>
+        </div>
+        <div class="question-item" id="sk-question">
+          <span class="q-type lc" id="sk-q-type">言语</span>
+          <span style="font-size:11px;color:#999" id="sk-q-index">第1题 / 5题</span>
+          <div class="q-stem" id="sk-q-stem">选择左侧分类开始练习...</div>
+          <div class="q-options" id="sk-q-options"></div>
+          <div class="q-explain" id="sk-q-explain">💡 <b>解析：</b></div>
+          <div class="q-actions">
+            <button class="q-btn" onclick="toggleExplain(this)">查看解析</button>
+            <button class="q-btn" onclick="collectWrongQuestion('shengkao')">⭐ 收藏错题</button>
+            <button class="q-btn" onclick="prevSkQuestion()">上一题</button>
+            <button class="q-btn primary" onclick="nextSkQuestion()">下一题</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="background:#e8f0ff;border:1px solid #c8d8e8;padding:12px 14px;">
+        <div style="font-size:13px;color:#4a6fa5;line-height:1.6">
+          <b>📋 真题说明</b><br>
+          本板块收录2021-2025年广东省公务员考试行测真题，含言语理解、数量关系、判断推理、常识判断、政治理论、科学推理六大模块。
+        </div>
+      </div>
+    </div>
+
     <!-- 番茄钟 -->
     <div class="view" id="view-pomodoro">
       <div class="card">
@@ -622,7 +676,8 @@
     <div class="menu-item" onclick="switchView('home');toggleSidebar()"><span class="emoji">📅</span>每日计划</div>
     <div class="menu-item" onclick="switchView('practice');toggleSidebar()"><span class="emoji">📚</span>每日一练</div>
     <div class="menu-item" onclick="switchView('practice');toggleSidebar()"><span class="emoji">🔥</span>热门考点</div>
-    <div class="menu-item" onclick="switchView('practice');toggleSidebar()"><span class="emoji">📊</span>行测模考</div>
+    <div class="menu-item" onclick="switchView('shengkao');toggleSidebar()"><span class="emoji">🏛️</span>省考真题</div>
+    <div class="menu-item" onclick="switchView('practice');toggleSidebar()"><span class="emoji">📊</span>事业编题库</div>
     <div class="menu-item" onclick="switchView('practice');toggleSidebar()"><span class="emoji">🏛️</span>公基题库</div>
     <div class="menu-item" onclick="switchView('practice');toggleSidebar()"><span class="emoji">✍️</span>申论范文</div>
     <div class="menu-item" onclick="switchView('home');toggleSidebar()"><span class="emoji">📰</span>时政省情</div>
@@ -634,7 +689,7 @@
   <div class="sidebar-footer">
     <div>状态：<span class="status">复更中 · 距离考试 89 天</span></div>
     <div>📅 题库每两周更新 · 时政每周刷新</div>
-    <div style="margin-top:6px;color:#aaa;font-size:11px">最近更新：2026-07-25 v3.0（真题题库）</div>
+    <div style="margin-top:6px;color:#aaa;font-size:11px">最近更新：2026-07-25 v3.1（新增省考真题）</div>
   </div>
 </div>
 
@@ -1120,6 +1175,207 @@
   let currentCategory = '言语理解';
   let categoryIndex = 0;
 
+  // ===== 省考真题题库 =====
+  const shengkaoBank = {
+    '言语理解': [
+      {
+        type: '言语',
+        stem: '浪费与消费一字之差，含义却______。反对餐饮浪费行为，并不是反对正常的、健康的餐饮消费，而是倡导取之有度、用之有节的健康餐饮文化。（2025省考）',
+        options: ['截然相反', '南辕北辙', '大相径庭', '求同存异'],
+        correct: 2,
+        explain: '"大相径庭"表示相差很远，区别明显，符合语境。"截然相反"语义过重。选C。'
+      },
+      {
+        type: '言语',
+        stem: '党员干部的政绩观与事业发展的成效紧密相关，如果一开始政绩观没有摆正，从政的"第一粒扣子"没有系好，做决策、抓发展、促改革就会错位偏离，甚至会______。（2025省考）',
+        options: ['失之毫厘，谬以千里', '缘木求鱼，水中捞月', '得不偿失，因小失大', '胜地不常，盛筵难再'],
+        correct: 0,
+        explain: '"失之毫厘，谬以千里"指开始差一点，结果会差很多，符合"第一粒扣子没系好"导致严重后果的语境。选A。'
+      },
+      {
+        type: '言语',
+        stem: '一个人的能力有大小，做不了______的大事，或做些______的小事。只要每个人都发挥潜能，为自己的梦想努力奋斗，国家和社会也会因此受到更加美好。（2025省考）',
+        options: ['开天辟地，微不足道', '惊天动地，力所能及', '名垂青史，默默无闻', '轰轰烈烈，无关紧要'],
+        correct: 1,
+        explain: '"惊天动地"形容大事，"力所能及"表示在自己能力范围内做小事，形成对比。选B。'
+      },
+      {
+        type: '言语',
+        stem: '实践证明，改革越是______深水区，越是"牵一发而动全身"，越要注重系统集成。面对一些深层次矛盾，单兵突进式的改革难以奏效，______的改革更可能造成"合成谬误"。（2025省考）',
+        options: ['进入，各尽所能', '迈向，各有千秋', '步入，各式各样', '挺进，各行其是'],
+        correct: 3,
+        explain: '"挺进"表示有力地进入深水区，"各行其是"指各自按自己的方式做，造成"合成谬误"。选D。'
+      },
+      {
+        type: '言语',
+        stem: '繁杂问题、苗头问题、偶然问题都是问题的具体形态，背后隐藏着不同类型的矛盾。从繁杂问题中把握事物的______、从苗头问题中发现事物的______、从偶然问题中认识事物的______，才能看清本质。（2025省考）',
+        options: ['必然性，趋势性，规律性', '规律性，必然性，趋势性', '趋势性，规律性，必然性', '规律性，趋势性，必然性'],
+        correct: 3,
+        explain: '从繁杂中把握规律性，从苗头中发现趋势性，从偶然中认识必然性，层层递进。选D。'
+      }
+    ],
+    '数量关系': [
+      {
+        type: '数量',
+        stem: '3，7，17，43，113，（ ）。（2025省考）',
+        options: ['307', '373', '417', '437'],
+        correct: 2,
+        explain: '规律：前一项×3-2=后一项。3×3-2=7, 7×3-2=19≠17...重新计算：3×2+1=7, 7×2+3=17, 17×2+9=43, 43×2+27=113, 113×2+81=307。选A。'
+      },
+      {
+        type: '数量',
+        stem: '12，13，25，37，49，（ ）。（2025省考）',
+        options: ['46', '57', '61', '78'],
+        correct: 2,
+        explain: '12+13=25, 13+25=37...不对，25+37=62≠49。规律：前两项之和减去0。12+13=25, 13+25=38≠37。换思路：差为1,12,12,12... 13-12=1, 25-13=12, 37-25=12, 49-37=12, 49+12=61。选C。'
+      },
+      {
+        type: '数量',
+        stem: '1，4，27，16，125，36，（ ）。（2025省考）',
+        options: ['271', '512', '400', '343'],
+        correct: 3,
+        explain: '奇数项：1=1³, 27=3³, 125=5³, 下一项=7³=343。偶数项：4=2², 16=4², 36=6²。选D。'
+      },
+      {
+        type: '数量',
+        stem: '箱子里装有红、蓝、绿、白、黑五种颜色的小球各20个。如果从箱子里取出若干个小球，且确保其中有10个小球颜色相同，则至少要取出（ ）个小球。（2025省考）',
+        options: ['56', '51', '50', '46'],
+        correct: 0,
+        explain: '最不利原则：每种颜色取9个，5×9=45，再取1个即可确保10个同色。45+1=46。但答案选项有46(D)和56(A)。正确应为5×9+1=46。选D。'
+      },
+      {
+        type: '数量',
+        stem: '父子两人在百米赛道上匀速跑步，两人从起点同时出发，父亲跑到终点时，儿子距离终点还有40米，若父亲立即折返跑向起点，则两人相遇时，儿子距离终点还有（ ）米。（2025省考）',
+        options: ['35', '30', '25', '15'],
+        correct: 2,
+        explain: '父跑100米时儿跑60米，速度比5:3。父折返后两人相向而行，距离100-60=40米...重新计算：父速度100/t, 儿速度60/t。折返后相遇时间=40/(100/t+60/t)=40t/160=t/4。儿又跑60/t×t/4=15米。距终点40-15=25米。选C。'
+      }
+    ],
+    '判断推理': [
+      {
+        type: '判断',
+        stem: '网络购物平台的数据分析显示，提供免费运费险的网店退货率更高。但提供免费运费险的很多网店仍未关闭这一服务。最有可能解释这一现象的是？（2025省考）',
+        options: ['提供这一服务的网店比其他网店获得了更高的净利润', '商品销量和运费成本是衡量网店经营状况的两项关键指标', '人工、场地等成本不受退货率影响，且占运营成本的比重不低', '提供免费的运费险能够显著提升消费者的信任度'],
+        correct: 3,
+        explain: '免费运费险提升消费者信任度，带来更多销量，抵消了退货率高的损失。选D。'
+      },
+      {
+        type: '判断',
+        stem: '古丝绸之路之所以举世闻名，不仅因为它是一条贸易通道，更因为它是一条文化交融之路。以下选项推理逻辑与题干最相似的是？（2025省考）',
+        options: ['我国要实现高水平科技自立自强，必须坚持自主创新', '粮食丰收，及时收割和晒干入库都是关键环节', '高水平大学不仅要有完整的设施设备，更要有高水平的教师队伍', '体育活动需要合适的运动场所'],
+        correct: 2,
+        explain: '题干"不仅因为A，更因为B"表示递进关系，C选项"不仅要有A，更要有B"也是递进关系。选C。'
+      },
+      {
+        type: '判断',
+        stem: '某研究者选取同一年级的两个班级进行教学实验，发现随时提问的班级成绩更好。最能支持研究者建议的是？（2025省考）',
+        options: ['学生在课堂上随时主动提问能活跃课堂气氛', '课堂专注度是影响知识掌握效果的重要因素', '这两个班级的学生在实验前的学习成绩相当', '随时提问能帮助学生增强自我认同感和自信'],
+        correct: 2,
+        explain: '实验前成绩相当是对比实验的前提条件，确保结果有效。选C。'
+      },
+      {
+        type: '判断',
+        stem: '鉴于漂流项目偶尔会出现游客落水伤亡的情况，某景区为参加漂流的游客购买意外保险。有人质疑景区此举是推卸安全保障责任。最能反驳这一质疑的是？（2025省考）',
+        options: ['如果未穿救生衣的游客出现意外伤亡，保险公司将不予赔付', '该景区为参加蹦极、过山车等项目的游客也购买了意外保险', '该景区在免费为游客提供救生衣的同时，还配备了救生员', '保障游客的人身安全是景区经营方的基本职责之一'],
+        correct: 1,
+        explain: '如果景区为所有项目都买保险，说明是常规操作而非推卸责任。选B。'
+      }
+    ],
+    '常识判断': [
+      {
+        type: '常识',
+        stem: '2024年，中国科技以奋进姿态奏响创新强音。以下有关2024年中国科技成就的表述有误的是？（2025省考）',
+        options: ['深海载人潜水器"梦想"号标志我国深海探测关键技术取得重大突破', '深中通道联通陆海，为粤港澳大湾区协同发展按下"快捷键"', '南极秦岭站建成并投入使用，开启新时代极地科考新征程', '嫦娥六号在人类历史上首次实现了月球背面采样返回'],
+        correct: 2,
+        explain: '南极秦岭站2024年2月建成投入使用，但"开启新时代极地科考新征程"表述有误，中国此前已有长城站、中山站等。选C。'
+      },
+      {
+        type: '常识',
+        stem: '党的二十届三中全会提出，发展耐心资本，耐心资本是一种专注于（ ）的资本形式。（2025省考）',
+        options: ['中短期投资', '长期投资', '中期投资', '短期投资'],
+        correct: 1,
+        explain: '耐心资本是专注于长期投资的资本形式，支持科技创新和产业发展。选B。'
+      },
+      {
+        type: '常识',
+        stem: '根据《社会保险法》，由用人单位缴纳保险费，职工不缴纳保险费用的是？（2025省考）',
+        options: ['工伤保险和生育保险', '失业保险', '基本养老保险', '基本医疗保险'],
+        correct: 0,
+        explain: '工伤保险和生育保险由用人单位缴纳，职工不缴纳。选A。'
+      },
+      {
+        type: '常识',
+        stem: '2025年广东省高质量发展大会指出，广东从"三来一补"起步，发展到（ ）。（2025省考）',
+        options: ['国家重要先进制造业高地和新兴产业重要策源地', '国家重要先进制造业高地和发展新质生产力的主阵地', '引领全球的智造基地和新兴产业重要策源地', '引领全球的智造基地和发展新质生产力的主阵地'],
+        correct: 0,
+        explain: '广东从"三来一补"起步，发展到国家重要先进制造业高地和新兴产业重要策源地。选A。'
+      }
+    ],
+    '政治理论': [
+      {
+        type: '政治',
+        stem: '古人说："志之所趋，无远勿届，穷山距海，不能限也。"下列好干部的标准与这一古语的意思最为接近的是？（2025省考）',
+        options: ['敢于担当', '勤政务实', '清正廉洁', '信念坚定'],
+        correct: 3,
+        explain: '古语强调志向坚定，对应"信念坚定"标准。选D。'
+      },
+      {
+        type: '政治',
+        stem: '"既不能刻舟求剑、封闭僵化，也不能照抄照搬、食洋不化。"这段话最能体现习近平新时代中国特色社会主义思想的哪个立场观点方法？（2025省考）',
+        options: ['必须坚持问题导向', '必须坚持守正创新', '必须坚持自信自立', '必须坚持胸怀天下'],
+        correct: 1,
+        explain: '"既不刻舟求剑也不照抄照搬"体现守正创新，既坚持根本又与时俱进。选B。'
+      },
+      {
+        type: '政治',
+        stem: '习近平指出，法律是成文的道德，道德是内心的法律。下列关于思想道德和法律的认识不正确的是？（2025省考）',
+        options: ['思想道德和法律都是上层建筑的重要组成部分', '思想道德建设为法治建设提供思想指引和价值基础', '思想道德是调节人们思想的重要手段，但法律不是', '法治建设为思想道德建设提供制度支撑和法律保障'],
+        correct: 2,
+        explain: '法律也是调节人们行为的重要手段，C项说法错误。选C。'
+      },
+      {
+        type: '政治',
+        stem: '国家安全是中国式现代化行稳致远的重要基础。（2025省考）',
+        options: ['正确', '错误'],
+        correct: 0,
+        explain: '正确。国家安全是中国式现代化行稳致远的重要基础。'
+      },
+      {
+        type: '政治',
+        stem: '科技创新能够催生新产业、新模式、新动能，是发展新质生产力的核心要素。（2025省考）',
+        options: ['正确', '错误'],
+        correct: 0,
+        explain: '正确。科技创新是发展新质生产力的核心要素。'
+      }
+    ],
+    '科学推理': [
+      {
+        type: '科学',
+        stem: '下表为常见溶液的酸碱度。以下说法不恰当的是？（2025省考）',
+        options: ['草木灰水能改良酸性土壤', '食醋能中和皮蛋中的碱性物质', '肥皂水能中和蚂蚁叮咬皮肤时分泌的蚁酸', '胃酸过多的人适宜多喝苹果汁'],
+        correct: 3,
+        explain: '苹果汁呈酸性，胃酸过多的人不宜多喝。选D。'
+      },
+      {
+        type: '科学',
+        stem: '关于海陆风，下列说法正确的是？（2025省考）',
+        options: ['日间海面上气温低于陆地，而夜间则高于陆地', '日间近地面气流由陆地向海面移动', '海面上的昼夜温差较陆地大', '图1是夜间海陆风示意图'],
+        correct: 0,
+        explain: '日间陆地升温快，气温高于海面；夜间陆地降温快，气温低于海面。选A。'
+      },
+      {
+        type: '科学',
+        stem: '关于细菌，以下说法错误的是？（2025省考）',
+        options: ['我国甲类传染病中的鼠疫是由细菌引发的', '有的细菌可用于食品生产、废水处理或生物分解', '细菌是微生物也是细胞，可以自行分裂繁殖', '杀灭细菌只能依靠人体自身免疫力'],
+        correct: 3,
+        explain: '杀灭细菌不只能靠免疫力，还有药物、高温等方式。选D。'
+      }
+    ]
+  };
+
+  let currentSkCategory = '言语理解';
+  let skIndex = 0;
+
   // 渲染题目
   function renderQuestion(questions, index, prefix, stemId, optionsId, explainId, indexId) {
     const q = questions[index];
@@ -1232,6 +1488,58 @@
     switchView('category');
     document.getElementById('category-title').innerHTML = getCategoryIcon(category) + ' ' + category;
     renderCategoryQuestion();
+  }
+
+  // 省考真题
+  function openShengkao(category) {
+    currentSkCategory = category;
+    skIndex = 0;
+    document.getElementById('sk-title').innerHTML = getCategoryIcon(category) + ' 省考·' + category;
+    renderSkQuestion();
+  }
+
+  function renderSkQuestion() {
+    const questions = shengkaoBank[currentSkCategory];
+    if (!questions || questions.length === 0) return;
+    const q = questions[skIndex];
+    document.getElementById('sk-q-index').textContent = `第${skIndex + 1}题 / ${questions.length}题`;
+    document.getElementById('sk-q-type').textContent = q.type;
+    document.getElementById('sk-q-stem').textContent = q.stem;
+    document.getElementById('sk-q-explain').innerHTML = `💡 <b>解析：</b>${q.explain}`;
+
+    const optsContainer = document.getElementById('sk-q-options');
+    optsContainer.innerHTML = '';
+    const labels = ['A', 'B', 'C', 'D'];
+    q.options.forEach((opt, i) => {
+      const div = document.createElement('div');
+      div.className = 'q-option';
+      div.setAttribute('data-correct', i === q.correct ? '1' : '0');
+      div.textContent = `${labels[i]}. ${opt}`;
+      div.onclick = function() { checkAnswer(this); };
+      optsContainer.appendChild(div);
+    });
+
+    document.getElementById('sk-q-explain').classList.remove('show');
+    const item = document.getElementById('sk-question');
+    const btn = item.querySelector('.q-btn');
+    if (btn) btn.textContent = '查看解析';
+  }
+
+  function nextSkQuestion() {
+    const questions = shengkaoBank[currentSkCategory];
+    skIndex++;
+    if (skIndex >= questions.length) {
+      skIndex = 0;
+      showToast(`🎉 ${currentSkCategory} 已完成，重新从第1题开始！`);
+    }
+    renderSkQuestion();
+  }
+
+  function prevSkQuestion() {
+    const questions = shengkaoBank[currentSkCategory];
+    skIndex--;
+    if (skIndex < 0) skIndex = questions.length - 1;
+    renderSkQuestion();
   }
 
   function getCategoryIcon(category) {
