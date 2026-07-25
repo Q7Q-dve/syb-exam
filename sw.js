@@ -1,5 +1,5 @@
-// Service Worker - 离线缓存
-const CACHE_NAME = 'syb-app-v2.1'; // 7/25 全部修复：错题本+可点击+真题
+// Service Worker - 网络优先，确保总是最新版
+const CACHE_NAME = 'syb-app-v2.2'; // 7/25 修复缓存问题
 const ASSETS = [
   './',
   './index.html',
@@ -31,18 +31,19 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// 离线优先策略
+// 网络优先策略：优先从网络获取最新版，失败才用缓存
 self.addEventListener('fetch', (event) => {
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      return cached || fetch(event.request).then((response) => {
-        // 缓存新资源
-        if (response && response.status === 200 && event.request.method === 'GET') {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-        }
-        return response;
-      }).catch(() => cached);
+    fetch(event.request).then((response) => {
+      // 成功获取到网络响应，缓存它
+      if (response && response.status === 200 && event.request.method === 'GET') {
+        const clone = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+      }
+      return response;
+    }).catch(() => {
+      // 网络失败，用缓存
+      return caches.match(event.request);
     })
   );
 });

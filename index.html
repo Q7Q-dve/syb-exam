@@ -634,7 +634,7 @@
   <div class="sidebar-footer">
     <div>状态：<span class="status">复更中 · 距离考试 89 天</span></div>
     <div>📅 题库每两周更新 · 时政每周刷新</div>
-    <div style="margin-top:6px;color:#aaa;font-size:11px">最近更新：2026-07-25 v2.1（全部修复）</div>
+    <div style="margin-top:6px;color:#aaa;font-size:11px">最近更新：2026-07-25 v2.2（修复缓存）</div>
   </div>
 </div>
 
@@ -743,8 +743,18 @@
   // ===== Service Worker =====
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js').then(() => {
+      navigator.serviceWorker.register('sw.js?v=2.2').then((reg) => {
         console.log('SW注册成功');
+        // 检查更新
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              // 有新版本，自动刷新
+              window.location.reload();
+            }
+          });
+        });
       }).catch(e => console.log('SW注册失败:', e));
     });
   }
